@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>cz.kromer.restshopdemo</groupId>
-	<artifactId>restshopdemo</artifactId>
+	<artifactId>rest-shop-demo</artifactId>
 	<packaging>jar</packaging>
 	<version>1.0-SNAPSHOT</version>
 

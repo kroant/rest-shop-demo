@@ -5,7 +5,7 @@
 - Maven 3.8.3+
 
 ## How to run
-Build the application and run the tests:
+Build the application and run tests:
 
 `mvn clean package`
 
@@ -16,6 +16,16 @@ Run the application:
 Open Swagger UI in browser:
 
 [http://localhost:8080/rest-shop-demo/swagger-ui.html](http://localhost:8080/rest-shop-demo/swagger-ui.html)
+
+### Run in Docker (optional)
+
+Build the image:
+
+`mvn spring-boot:build-image`
+
+Run the application:
+
+`docker run --publish 8080:8080 rest-shop-demo:1.0-SNAPSHOT`
 
 ## Task
 REST interface to maintain a database of products and orders.
