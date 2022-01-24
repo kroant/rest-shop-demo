@@ -33,7 +33,7 @@ import cz.kromer.restshopdemo.dto.ProductDto;
 import cz.kromer.restshopdemo.service.ProductService;
 import io.restassured.RestAssured;
 
-public class OrderControllerTest extends E2ETestParent {
+class OrderControllerTest extends E2ETestParent {
 
     static final UUID ORDER_1_ID = fromString("fa254654-bdbc-431b-8b9e-f6bf34540ee9");
 

@@ -10,10 +10,12 @@ import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.ILLEGAL_ORDER_S
 import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.PRODUCT_STOCK_SHORTAGE;
 import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.REQUEST_VALIDATION_ERROR;
 import static java.util.stream.Stream.concat;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.ResponseEntity.badRequest;
-import static org.springframework.http.ResponseEntity.notFound;
+import static org.springframework.http.ResponseEntity.status;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,7 +37,12 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
     @ExceptionHandler(RootEntityNotFoundException.class)
     protected ResponseEntity<?> handleRootEntityNotFound(RootEntityNotFoundException e) {
-        return notFound().build();
+        return status(NOT_FOUND).body(mapToEntityNotFoundResponse(e.getId()));
+    }
+
+    @ExceptionHandler(AssociatedEntityNotFoundException.class)
+    protected ResponseEntity<ErrorResponseDto> handleAssociatedEntityNotFound(AssociatedEntityNotFoundException e) {
+        return badRequest().body(mapToEntityNotFoundResponse(e.getId()));
     }
 
     @ExceptionHandler(ProductShortageException.class)
@@ -58,16 +65,6 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 .build());
     }
 
-    @ExceptionHandler(AssociatedEntityNotFoundException.class)
-    protected ResponseEntity<ErrorResponseDto> handleAssociatedEntityNotFound(AssociatedEntityNotFoundException e) {
-        return badRequest().body(ErrorResponseDto.builder()
-                .errorCode(ENTITY_NOT_FOUND)
-                .errorDetails(List.of(ErrorDetailDto.builder()
-                        .entityId(e.getId())
-                        .build()))
-                .build());
-    }
-
     @ExceptionHandler(IllegalAmountScaleException.class)
     protected ResponseEntity<ErrorResponseDto> handleIllegalAmountScale(IllegalAmountScaleException e) {
         return badRequest().body(ErrorResponseDto.builder()
@@ -86,6 +83,15 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 .errorDetails(e.getAllErrors().stream()
                         .map(RestResponseEntityExceptionHandler::mapToErrorDetail).toList())
                 .build());
+    }
+
+    private static ErrorResponseDto mapToEntityNotFoundResponse(UUID entityId) {
+        return ErrorResponseDto.builder()
+                .errorCode(ENTITY_NOT_FOUND)
+                .errorDetails(List.of(ErrorDetailDto.builder()
+                        .entityId(entityId)
+                        .build()))
+                .build();
     }
 
     private static ErrorDetailDto mapToErrorDetail(ObjectError objectError) {

@@ -2,6 +2,7 @@ package cz.kromer.restshopdemo.controller;
 
 import static cz.kromer.restshopdemo.dto.QuantityUnit.PIECE;
 import static cz.kromer.restshopdemo.dto.error.ErrorDetailValueType.VALIDATION_CODE;
+import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.ENTITY_NOT_FOUND;
 import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.REQUEST_VALIDATION_ERROR;
 import static io.restassured.http.ContentType.JSON;
 import static java.math.BigDecimal.TEN;
@@ -40,8 +41,12 @@ class ProductControllerValidationTest extends E2ETestParent {
     @Test
     void shouldFail404_whenNotFound() {
         RestAssured.given().when()
-            .get("/products/{id}", new UUID(0, 0)).then().assertThat()
-            .statusCode(NOT_FOUND.value());
+            .get("/products/{id}", new UUID(0, 0)).then().log().all().assertThat()
+            .statusCode(NOT_FOUND.value())
+            .body("errorCode", is(ENTITY_NOT_FOUND.name()))
+            .body("errorDetails", hasSize(1))
+            .body("errorDetails[0].entityId", is(new UUID(0, 0).toString()))
+            .body("errorDetails[0].values", nullValue());
     }
 
     @Test

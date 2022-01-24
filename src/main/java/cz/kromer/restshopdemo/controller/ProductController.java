@@ -39,28 +39,23 @@ class ProductController {
     }
 
     @GetMapping("/{id}")
-    @ApiResponse(responseCode = "200", content = {
-            @Content(schema = @Schema(implementation = ProductDto.class)) })
-    @ApiResponse(responseCode = "404", content = { @Content })
+    @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = ProductDto.class)) })
+    @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
     ProductDto getById(@PathVariable("id") UUID id) {
         return productService.getById(id);
     }
 
     @PostMapping
-    @ApiResponse(responseCode = "200", content = {
-            @Content(schema = @Schema(implementation = ProductDto.class)) })
-    @ApiResponse(responseCode = "400", content = {
-            @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
+    @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = ProductDto.class)) })
+    @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
     ProductDto save(@Valid @RequestBody ProductDto product) {
         return productService.getById(productService.save(product));
     }
 
     @PutMapping("/{id}")
-    @ApiResponse(responseCode = "200", content = {
-            @Content(schema = @Schema(implementation = ProductDto.class)) })
-    @ApiResponse(responseCode = "400", content = {
-            @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
-    @ApiResponse(responseCode = "404", content = { @Content })
+    @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = ProductDto.class)) })
+    @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
+    @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
     ProductDto update(@PathVariable("id") UUID id, @Valid @RequestBody ProductDto product) {
         productService.update(id, product);
         return productService.getById(id);
@@ -68,7 +63,7 @@ class ProductController {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "200", content = { @Content })
-    @ApiResponse(responseCode = "404", content = { @Content })
+    @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
     void delete(@PathVariable("id") UUID id) {
         productService.delete(id);
     }

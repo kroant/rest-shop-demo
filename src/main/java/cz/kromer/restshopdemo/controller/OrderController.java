@@ -38,36 +38,31 @@ class OrderController {
     }
 
     @GetMapping("/{id}")
-    @ApiResponse(responseCode = "200", content = {
-            @Content(schema = @Schema(implementation = OrderDto.class)) })
-    @ApiResponse(responseCode = "404", content = { @Content })
+    @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = OrderDto.class)) })
+    @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
     OrderDto getById(@PathVariable("id") UUID id) {
         return orderService.getById(id);
     }
 
     @PostMapping
-    @ApiResponse(responseCode = "200", content = {
-            @Content(schema = @Schema(implementation = OrderDto.class)) })
-    @ApiResponse(responseCode = "400", content = {
-            @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
+    @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = OrderDto.class)) })
+    @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
     OrderDto save(@Valid @RequestBody OrderDto order) {
         return orderService.getById(orderService.save(order));
     }
 
     @PutMapping("/{id}/cancel")
     @ApiResponse(responseCode = "200", content = { @Content })
-    @ApiResponse(responseCode = "400", content = {
-            @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
-    @ApiResponse(responseCode = "404", content = { @Content })
+    @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
+    @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
     void cancel(@PathVariable("id") UUID id) {
         orderService.cancel(id);
     }
 
     @PutMapping("/{id}/pay")
     @ApiResponse(responseCode = "200", content = { @Content })
-    @ApiResponse(responseCode = "400", content = {
-            @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
-    @ApiResponse(responseCode = "404", content = { @Content })
+    @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
+    @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
     void pay(@PathVariable("id") UUID id) {
         orderService.pay(id);
     }
