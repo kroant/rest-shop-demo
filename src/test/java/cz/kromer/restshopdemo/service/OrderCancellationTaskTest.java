@@ -16,7 +16,7 @@ import org.springframework.test.context.jdbc.Sql;
 import cz.kromer.restshopdemo.E2ETestParent;
 import cz.kromer.restshopdemo.dto.OrderState;
 
-public class OrderCancellationTaskTest extends E2ETestParent {
+class OrderCancellationTaskTest extends E2ETestParent {
 
     @Autowired
     private OrderCancellationTask task;
