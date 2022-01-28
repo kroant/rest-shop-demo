@@ -1,7 +1,7 @@
 # REST Shop Demo
 
 ## Requirements
-- Java 17+
+- JDK 17+
 - Maven 3.8.3+
 
 ## How to run

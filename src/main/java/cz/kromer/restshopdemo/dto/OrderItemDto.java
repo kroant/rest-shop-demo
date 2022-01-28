@@ -3,6 +3,7 @@ package cz.kromer.restshopdemo.dto;
 import java.math.BigDecimal;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
@@ -19,5 +20,6 @@ public class OrderItemDto {
 
     @NotNull
     @Positive
+    @Digits(integer = 16, fraction = 3)
     BigDecimal amount;
 }

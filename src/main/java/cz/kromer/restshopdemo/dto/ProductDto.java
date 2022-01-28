@@ -3,6 +3,7 @@ package cz.kromer.restshopdemo.dto;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -31,9 +32,11 @@ public class ProductDto {
 
     @NotNull
     @Positive
+    @Digits(integer = 17, fraction = 2)
     BigDecimal price;
 
     @NotNull
     @Positive
+    @Digits(integer = 16, fraction = 3)
     BigDecimal stock;
 }

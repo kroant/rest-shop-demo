@@ -16,6 +16,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -57,7 +58,7 @@ class ProductControllerValidationTest extends E2ETestParent {
                             + "\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t")
                     .unit(null)
                     .price(BigDecimal.valueOf(-32))
-                    .stock(null)
+                    .stock(BigDecimal.valueOf(1, 4))
                     .build()).when()
             .post("/products").then().log().all().assertThat()
             .statusCode(BAD_REQUEST.value())
@@ -72,6 +73,7 @@ class ProductControllerValidationTest extends E2ETestParent {
             .body(containsString(Size.class.getSimpleName()))
             .body(containsString(Pattern.class.getSimpleName()))
             .body(containsString(Positive.class.getSimpleName()))
+            .body(containsString(Digits.class.getSimpleName()))
             .body(containsString(VALIDATION_CODE.name()));
     }
 
