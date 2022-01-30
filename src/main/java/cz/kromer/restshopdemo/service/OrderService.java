@@ -3,6 +3,8 @@ package cz.kromer.restshopdemo.service;
 import static cz.kromer.restshopdemo.dto.OrderState.CANCELLED;
 import static cz.kromer.restshopdemo.dto.OrderState.NEW;
 import static cz.kromer.restshopdemo.dto.OrderState.PAID;
+import static cz.kromer.restshopdemo.dto.validation.ProductStockMaxScaleValidator.isScaleValid;
+import static java.math.BigDecimal.ZERO;
 import static java.util.Arrays.asList;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -23,6 +25,9 @@ import cz.kromer.restshopdemo.dto.OrderDto;
 import cz.kromer.restshopdemo.dto.OrderState;
 import cz.kromer.restshopdemo.entity.Order;
 import cz.kromer.restshopdemo.entity.OrderItem;
+import cz.kromer.restshopdemo.entity.Product;
+import cz.kromer.restshopdemo.exception.AssociatedEntityNotFoundException;
+import cz.kromer.restshopdemo.exception.IllegalAmountScaleException;
 import cz.kromer.restshopdemo.exception.IllegalOrderStateException;
 import cz.kromer.restshopdemo.exception.RootEntityNotFoundException;
 import cz.kromer.restshopdemo.mapper.OrderMapper;
@@ -60,10 +65,15 @@ public class OrderService {
     @Transactional(isolation = READ_COMMITTED)
     public UUID save(OrderDto order) {
         Order entity = orderMapper.mapToOrder(order);
+        List<OrderItem> items = entity.getItems();
+
+        items.forEach(this::fillPersistentProductAndLock);
+        items.forEach(OrderService::validateAmountScale);
 
         StockShortageWatcher stock = beanFactory.getBean(StockShortageWatcher.class);
-        stock.take(entity.getItems());
+        stock.take(items);
 
+        entity.setPrice(items.stream().map(OrderService::countPrice).reduce(ZERO, BigDecimal::add));
         entity = orderRepository.save(entity);
         return entity.getId();
     }
@@ -93,11 +103,28 @@ public class OrderService {
         return orderRepository.findNewOrdersBefore(before);
     }
 
+    private void fillPersistentProductAndLock(OrderItem orderItem) {
+        UUID id = orderItem.getProduct().getId();
+        orderItem.setProduct(productLockingRepository.findById(id)
+                .orElseThrow(() -> new AssociatedEntityNotFoundException(id)));
+    }
+
     private void returnToStock(OrderItem item) {
         productLockingRepository.findById(item.getProduct().getId()).ifPresent(product -> {
             BigDecimal newAmount = product.getStock().add(item.getAmount());
             product.setStock(newAmount);
         });
+    }
+
+    private static void validateAmountScale(OrderItem item) {
+        Product product = item.getProduct();
+        if (!isScaleValid(item.getAmount(), product.getUnit())) {
+            throw new IllegalAmountScaleException(product.getId());
+        }
+    }
+
+    private static BigDecimal countPrice(OrderItem item) {
+        return item.getAmount().multiply(item.getProduct().getPrice());
     }
 
     private static void validateOrderState(Order order, OrderState... allowedStates) {

@@ -1,6 +1,5 @@
 package cz.kromer.restshopdemo.service;
 
-import static cz.kromer.restshopdemo.dto.validation.ProductStockMaxScaleValidator.isScaleValid;
 import static java.math.BigDecimal.ZERO;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
@@ -8,19 +7,15 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.S
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import cz.kromer.restshopdemo.entity.OrderItem;
 import cz.kromer.restshopdemo.entity.Product;
-import cz.kromer.restshopdemo.exception.AssociatedEntityNotFoundException;
-import cz.kromer.restshopdemo.exception.IllegalAmountScaleException;
 import cz.kromer.restshopdemo.exception.ProductShortageException;
 import cz.kromer.restshopdemo.exception.ProductStockShortageDto;
 import cz.kromer.restshopdemo.mapper.ProductMapper;
-import cz.kromer.restshopdemo.repository.ProductLockingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
@@ -30,7 +25,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 class StockShortageWatcher {
 
-    ProductLockingRepository productLockingRepository;
     ProductMapper productMapper;
 
     List<ProductStockShortageDto> shortages = new LinkedList<>();
@@ -43,14 +37,8 @@ class StockShortageWatcher {
     }
 
     private void take(OrderItem item) {
-        UUID productId = item.getProduct().getId();
-        Product product = productLockingRepository.findById(productId)
-                .orElseThrow(() -> new AssociatedEntityNotFoundException(productId));
-        final BigDecimal itemAmount = item.getAmount();
-
-        validateAmountScale(itemAmount, product);
-
-        final BigDecimal newAmount = product.getStock().subtract(itemAmount);
+        Product product = item.getProduct();
+        final BigDecimal newAmount = product.getStock().subtract(item.getAmount());
         if (newAmount.compareTo(ZERO) < 0) {
             shortages.add(ProductStockShortageDto.builder()
                     .product(productMapper.mapToOrderProduct(product))
@@ -58,12 +46,6 @@ class StockShortageWatcher {
                     .build());
         } else {
             product.setStock(newAmount);
-        }
-    }
-
-    private static void validateAmountScale(BigDecimal amount, Product product) {
-        if (!isScaleValid(amount, product.getUnit())) {
-            throw new IllegalAmountScaleException(product.getId());
         }
     }
 }

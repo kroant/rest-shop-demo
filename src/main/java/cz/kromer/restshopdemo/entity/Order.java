@@ -6,6 +6,7 @@ import static javax.persistence.EnumType.STRING;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +42,8 @@ public class Order {
 
     @Enumerated(STRING)
     OrderState state;
+
+    BigDecimal price;
 
     @OneToMany(mappedBy = "order", cascade = { PERSIST })
     List<OrderItem> items;
