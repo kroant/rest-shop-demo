@@ -1,6 +1,7 @@
 package cz.kromer.restshopdemo.repository;
 
 import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
+import static org.hibernate.cfg.AvailableSettings.JPA_LOCK_TIMEOUT;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -19,6 +20,6 @@ public interface ProductLockingRepository extends JpaRepository<Product, UUID> {
 
     @Override
     @Lock(PESSIMISTIC_WRITE)
-    @QueryHints({ @QueryHint(name = "javax.persistence.lock.timeout", value = "4000") })
+    @QueryHints({ @QueryHint(name = JPA_LOCK_TIMEOUT, value = "4000") })
     Optional<Product> findById(UUID id);
 }
