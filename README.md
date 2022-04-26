@@ -1,8 +1,8 @@
 # REST Shop Demo
 
 ## Requirements
-- JDK 17+
-- Maven 3.8.3+
+- JDK 17.0.2+
+- Maven 3.8.5+
 
 ## How to run
 Build the application and run tests:
