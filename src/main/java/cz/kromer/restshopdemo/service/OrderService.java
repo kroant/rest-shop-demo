@@ -58,7 +58,9 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderDto getById(UUID id) {
         return orderMapper.mapToOrderDto(
-                orderRepository.findById(id).orElseThrow(() -> new RootEntityNotFoundException(id)));
+                orderRepository.findById(id)
+                        .orElseThrow(() -> new RootEntityNotFoundException(id))
+        );
     }
 
     @Retryable(include = { ConcurrencyFailureException.class })
@@ -73,7 +75,10 @@ public class OrderService {
         StockShortageWatcher stock = beanFactory.getBean(StockShortageWatcher.class);
         stock.take(items);
 
-        entity.setPrice(items.stream().map(OrderService::countPrice).reduce(ZERO, BigDecimal::add));
+        entity.setPrice(items.stream()
+                .map(OrderService::countPrice)
+                .reduce(ZERO, BigDecimal::add)
+        );
         entity = orderRepository.save(entity);
         return entity.getId();
     }
@@ -81,7 +86,8 @@ public class OrderService {
     @Retryable(include = { ConcurrencyFailureException.class })
     @Transactional(isolation = READ_COMMITTED)
     public void cancel(UUID id) {
-        Order order = orderLockingRepository.findById(id).orElseThrow(() -> new RootEntityNotFoundException(id));
+        Order order = orderLockingRepository.findById(id)
+                .orElseThrow(() -> new RootEntityNotFoundException(id));
 
         validateOrderState(order, NEW);
 
@@ -91,7 +97,8 @@ public class OrderService {
 
     @Transactional
     public void pay(UUID id) {
-        Order order = orderRepository.findById(id).orElseThrow(() -> new RootEntityNotFoundException(id));
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RootEntityNotFoundException(id));
 
         validateOrderState(order, NEW);
 
@@ -106,14 +113,16 @@ public class OrderService {
     private void fillPersistentProductAndLock(OrderItem orderItem) {
         UUID id = orderItem.getProduct().getId();
         orderItem.setProduct(productLockingRepository.findById(id)
-                .orElseThrow(() -> new AssociatedEntityNotFoundException(id)));
+                .orElseThrow(() -> new AssociatedEntityNotFoundException(id))
+        );
     }
 
     private void returnToStock(OrderItem item) {
-        productLockingRepository.findById(item.getProduct().getId()).ifPresent(product -> {
-            BigDecimal newAmount = product.getStock().add(item.getAmount());
-            product.setStock(newAmount);
-        });
+        productLockingRepository.findById(item.getProduct().getId())
+                .ifPresent(product -> {
+                    BigDecimal newAmount = product.getStock().add(item.getAmount());
+                    product.setStock(newAmount);
+                });
     }
 
     private static void validateAmountScale(OrderItem item) {

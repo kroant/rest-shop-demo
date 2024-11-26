@@ -17,7 +17,7 @@ public abstract class E2ETestParent {
     private int port;
 
     @BeforeEach
-    private void setUp() {
+    void setUp() {
         RestAssured.port = port;
     }
 }

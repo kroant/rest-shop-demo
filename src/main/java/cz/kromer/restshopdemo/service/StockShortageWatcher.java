@@ -30,7 +30,7 @@ class StockShortageWatcher {
     List<ProductStockShortageDto> shortages = new LinkedList<>();
 
     void take(List<OrderItem> orderItems) {
-        orderItems.stream().forEach(this::take);
+        orderItems.forEach(this::take);
         if (!shortages.isEmpty()) {
             throw new ProductShortageException(shortages);
         }

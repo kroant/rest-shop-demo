@@ -28,10 +28,12 @@ public class OrderCancellationTask {
     @Scheduled(cron = "${app.scheduling.order-cancellation.cron}")
     @SchedulerLock(name = "cancelObsoleteOrders")
     public void cancelObsoleteOrders() {
-        final Instant before = Instant.now().minus(schedulingProps.getOrderCancellation().getNewOrderRetentionMinutes(),
-                MINUTES).truncatedTo(SECONDS);
+        final Instant before = Instant.now()
+                .minus(schedulingProps.getOrderCancellation().getNewOrderRetentionMinutes(), MINUTES)
+                .truncatedTo(SECONDS);
         log.info("Cancelling NEW orders created before {}", before);
-        orderService.findNewOrdersBefore(before).forEach(this::cancelOrder);
+        orderService.findNewOrdersBefore(before)
+                .forEach(this::cancelOrder);
     }
 
     private void cancelOrder(UUID id) {

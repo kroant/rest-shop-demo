@@ -38,7 +38,9 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductDto getById(UUID id) {
         return productMapper.mapToProductDto(
-                productRepository.findById(id).orElseThrow(() -> new RootEntityNotFoundException(id)));
+                productRepository.findById(id)
+                        .orElseThrow(() -> new RootEntityNotFoundException(id))
+        );
     }
 
     @Transactional
@@ -51,13 +53,15 @@ public class ProductService {
     @Retryable(include = { ConcurrencyFailureException.class })
     @Transactional
     public void update(UUID id, ProductDto product) {
-        Product entity = productLockingRepository.findById(id).orElseThrow(() -> new RootEntityNotFoundException(id));
+        Product entity = productLockingRepository.findById(id)
+                .orElseThrow(() -> new RootEntityNotFoundException(id));
         productMapper.mapToProduct(product, entity);
     }
 
     @Transactional
     public void delete(UUID id) {
-        Product entity = productRepository.findById(id).orElseThrow(() -> new RootEntityNotFoundException(id));
+        Product entity = productRepository.findById(id)
+                .orElseThrow(() -> new RootEntityNotFoundException(id));
         entity.setDeleted(true);
     }
 }
