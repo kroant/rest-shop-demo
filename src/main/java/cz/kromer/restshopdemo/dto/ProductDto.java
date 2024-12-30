@@ -3,12 +3,12 @@ package cz.kromer.restshopdemo.dto;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 import cz.kromer.restshopdemo.dto.validation.ProductStockMaxScale;
 import lombok.Builder;

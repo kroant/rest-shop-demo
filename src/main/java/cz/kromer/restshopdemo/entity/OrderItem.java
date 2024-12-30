@@ -5,9 +5,9 @@ import static lombok.AccessLevel.PRIVATE;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

@@ -16,24 +16,21 @@ import static org.springframework.http.ResponseEntity.status;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import cz.kromer.restshopdemo.dto.error.ErrorDetailDto;
 import cz.kromer.restshopdemo.dto.error.ErrorDetailValueDto;
 import cz.kromer.restshopdemo.dto.error.ErrorResponseDto;
 
-@ControllerAdvice
-public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+@RestControllerAdvice
+public class RestResponseEntityExceptionHandler {
 
     @ExceptionHandler(RootEntityNotFoundException.class)
     protected ResponseEntity<?> handleRootEntityNotFound(RootEntityNotFoundException e) {
@@ -75,9 +72,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 .build());
     }
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
-            HttpHeaders headers, HttpStatus status, WebRequest request) {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
         return badRequest().body(ErrorResponseDto.builder()
                 .errorCode(REQUEST_VALIDATION_ERROR)
                 .errorDetails(e.getAllErrors().stream()
@@ -106,10 +102,9 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
     private static List<ErrorDetailValueDto> mapToDetailValues(IllegalOrderStateException e) {
         return concat(
-                List.of(ErrorDetailValueDto.builder()
+                Stream.of(ErrorDetailValueDto.builder()
                         .type(CURRENT_STATE)
-                        .value(e.getCurrentState().name()).build())
-                        .stream(),
+                        .value(e.getCurrentState().name()).build()),
                 e.getAllowedStates().stream()
                         .map(state -> ErrorDetailValueDto.builder()
                                 .type(ALLOWED_STATE)

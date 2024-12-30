@@ -1,31 +1,28 @@
 package cz.kromer.restshopdemo.service;
 
-import static lombok.AccessLevel.PRIVATE;
-
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.dao.ConcurrencyFailureException;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import cz.kromer.restshopdemo.dto.ProductDto;
 import cz.kromer.restshopdemo.entity.Product;
 import cz.kromer.restshopdemo.exception.RootEntityNotFoundException;
 import cz.kromer.restshopdemo.mapper.ProductMapper;
-import cz.kromer.restshopdemo.repository.ProductLockingRepository;
 import cz.kromer.restshopdemo.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Component
+import java.util.List;
+import java.util.UUID;
+
+import static lombok.AccessLevel.PRIVATE;
+
+@Service
 @RequiredArgsConstructor
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 public class ProductService {
 
     ProductRepository productRepository;
-    ProductLockingRepository productLockingRepository;
     ProductMapper productMapper;
 
     @Transactional(readOnly = true)
@@ -50,17 +47,18 @@ public class ProductService {
         return entity.getId();
     }
 
-    @Retryable(include = { ConcurrencyFailureException.class })
+    @Retryable(retryFor = { ConcurrencyFailureException.class })
     @Transactional
     public void update(UUID id, ProductDto product) {
-        Product entity = productLockingRepository.findById(id)
+        Product entity = productRepository.findAndLockById(id)
                 .orElseThrow(() -> new RootEntityNotFoundException(id));
         productMapper.mapToProduct(product, entity);
     }
 
+    @Retryable(retryFor = { ConcurrencyFailureException.class })
     @Transactional
     public void delete(UUID id) {
-        Product entity = productRepository.findById(id)
+        Product entity = productRepository.findAndLockById(id)
                 .orElseThrow(() -> new RootEntityNotFoundException(id));
         entity.setDeleted(true);
     }

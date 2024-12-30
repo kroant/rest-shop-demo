@@ -1,17 +1,17 @@
 package cz.kromer.restshopdemo.entity;
 
-import static javax.persistence.EnumType.STRING;
+import static jakarta.persistence.EnumType.STRING;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 import cz.kromer.restshopdemo.dto.QuantityUnit;
 import lombok.EqualsAndHashCode;
@@ -26,7 +26,7 @@ import lombok.experimental.FieldDefaults;
 @EqualsAndHashCode(of = "id")
 @ToString(of = { "id", "name" })
 @Entity
-@Where(clause = "deleted = false")
+@SQLRestriction("deleted = false")
 public class Product {
 
     @Id

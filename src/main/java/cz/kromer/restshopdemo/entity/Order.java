@@ -1,8 +1,8 @@
 package cz.kromer.restshopdemo.entity;
 
 import static cz.kromer.restshopdemo.dto.OrderState.NEW;
-import static javax.persistence.CascadeType.PERSIST;
-import static javax.persistence.EnumType.STRING;
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.EnumType.STRING;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -11,14 +11,14 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 
 import cz.kromer.restshopdemo.dto.OrderState;
 import lombok.EqualsAndHashCode;

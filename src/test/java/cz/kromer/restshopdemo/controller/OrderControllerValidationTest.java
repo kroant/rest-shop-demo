@@ -29,7 +29,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +67,7 @@ class OrderControllerValidationTest extends E2ETestParent {
             .body("errorDetails[0].field", is("items[0]"))
             .body("errorDetails[0].values", hasSize(1))
             .body("errorDetails[0].values[0].type", is(VALIDATION_CODE.name()))
-            .body("errorDetails[0].values[0].value", is(NotNull.class.getSimpleName()));;
+            .body("errorDetails[0].values[0].value", is(NotNull.class.getSimpleName()));
     }
 
     @Test
@@ -88,7 +88,7 @@ class OrderControllerValidationTest extends E2ETestParent {
             .body("errorDetails[0].field", is("items[0].product.id"))
             .body("errorDetails[0].values", hasSize(1))
             .body("errorDetails[0].values[0].type", is(VALIDATION_CODE.name()))
-            .body("errorDetails[0].values[0].value", is(NotNull.class.getSimpleName()));;
+            .body("errorDetails[0].values[0].value", is(NotNull.class.getSimpleName()));
     }
 
     @Test
@@ -109,7 +109,7 @@ class OrderControllerValidationTest extends E2ETestParent {
             .body("errorDetails[0].field", is("items"))
             .body("errorDetails[0].values", hasSize(1))
             .body("errorDetails[0].values[0].type", is(VALIDATION_CODE.name()))
-            .body("errorDetails[0].values[0].value", is(UniqueOrderProduct.class.getSimpleName()));;
+            .body("errorDetails[0].values[0].value", is(UniqueOrderProduct.class.getSimpleName()));
     }
 
     @Test

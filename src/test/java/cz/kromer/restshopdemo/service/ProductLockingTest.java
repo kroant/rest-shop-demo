@@ -1,27 +1,26 @@
 package cz.kromer.restshopdemo.service;
 
-import static cz.kromer.restshopdemo.TestConstants.SQL_CLEANUP;
-import static java.lang.Thread.sleep;
-import static java.math.BigDecimal.ONE;
-import static java.util.UUID.fromString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.number.OrderingComparison.comparesEqualTo;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
-
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.test.context.jdbc.Sql;
-
 import cz.kromer.restshopdemo.E2ETestParent;
 import cz.kromer.restshopdemo.dto.OrderDto;
 import cz.kromer.restshopdemo.dto.OrderItemDto;
 import cz.kromer.restshopdemo.dto.OrderProductDto;
 import cz.kromer.restshopdemo.dto.ProductDto;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.test.context.jdbc.Sql;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+
+import static cz.kromer.restshopdemo.TestConstants.SQL_CLEANUP;
+import static java.math.BigDecimal.ONE;
+import static java.util.UUID.fromString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.number.OrderingComparison.comparesEqualTo;
 
 @Disabled("Locking Test uses thread sleeping. Only for proper locking investigation purpose.")
 class ProductLockingTest extends E2ETestParent {
@@ -36,16 +35,19 @@ class ProductLockingTest extends E2ETestParent {
     private ProductService productService;
 
     @Autowired
-    private ProductLockingTransaction lockingTransaction;
+    private ObjectFactory<ProductLockingTransaction> lockingTransactionFactory;
 
     @Autowired
     private TaskExecutor taskExecutor;
 
     @Test
     @Sql({ SQL_CLEANUP, "/sql/complex-test-data.sql" })
-    void shouldLockProductForConcurrentOrder() throws InterruptedException {
-        taskExecutor.execute(() -> lockingTransaction.lockAndWait(PRODUCT_2_ID, 4500));
-        sleep(50);
+    void shouldLockProductForConcurrentOrder() {
+        ProductLockingTransaction lockingTransaction = lockingTransactionFactory.getObject();
+
+        taskExecutor.execute(() -> lockingTransaction.lockAndSleep(PRODUCT_2_ID, 2200));
+
+        lockingTransaction.waitUntilProductLocked();
 
         orderService.save(OrderDto.builder().items(List.of(
                 OrderItemDto.builder().product(OrderProductDto.builder().id(PRODUCT_1_ID).build()).amount(ONE).build(),
