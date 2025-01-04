@@ -32,6 +32,6 @@ public abstract class OrderMapper {
 
     @AfterMapping
     protected void afterMapping(@MappingTarget Order order) {
-        order.getItems().forEach( item -> item.setOrder(order));
+        order.getItems().forEach(item -> item.setOrder(order));
     }
 }
