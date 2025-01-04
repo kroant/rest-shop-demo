@@ -1,23 +1,19 @@
 package cz.kromer.restshopdemo.mapper;
 
+import cz.kromer.restshopdemo.dto.ProductDto;
+import cz.kromer.restshopdemo.entity.Product;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import cz.kromer.restshopdemo.dto.OrderProductDto;
-import cz.kromer.restshopdemo.dto.ProductDto;
-import cz.kromer.restshopdemo.entity.Product;
-
 @Mapper
 public interface ProductMapper {
 
-    ProductDto mapToProductDto(Product product);
-
     @Mapping(target = "id", ignore = true)
-    Product mapToProduct(ProductDto product);
+    @Mapping(target = "deleted", ignore = true)
+    Product mapFrom(ProductDto product);
 
-    @Mapping(target = "id", ignore = true)
+    @InheritConfiguration
     void mapToProduct(ProductDto source, @MappingTarget Product entity);
-
-    OrderProductDto mapToOrderProduct(Product product);
 }

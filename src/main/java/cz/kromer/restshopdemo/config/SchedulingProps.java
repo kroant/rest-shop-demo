@@ -1,12 +1,11 @@
 package cz.kromer.restshopdemo.config;
 
-import static lombok.AccessLevel.PRIVATE;
-
+import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import lombok.Data;
-import lombok.experimental.FieldDefaults;
+import static lombok.AccessLevel.PRIVATE;
 
 @Data
 @FieldDefaults(level = PRIVATE)
@@ -15,11 +14,4 @@ import lombok.experimental.FieldDefaults;
 public class SchedulingProps {
 
     final OrderCancellationProps orderCancellation = new OrderCancellationProps();
-
-    @Data
-    @FieldDefaults(level = PRIVATE)
-    public static class OrderCancellationProps {
-
-        long newOrderRetentionMinutes = 30;
-    }
 }

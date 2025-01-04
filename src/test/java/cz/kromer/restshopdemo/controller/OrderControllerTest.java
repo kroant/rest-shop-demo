@@ -1,5 +1,21 @@
 package cz.kromer.restshopdemo.controller;
 
+import cz.kromer.restshopdemo.SpringTest;
+import cz.kromer.restshopdemo.dto.CreateOrderDto;
+import cz.kromer.restshopdemo.dto.OrderItemDto;
+import cz.kromer.restshopdemo.dto.OrderProductDto;
+import cz.kromer.restshopdemo.dto.ProductDto;
+import cz.kromer.restshopdemo.service.ProductService;
+import io.restassured.RestAssured;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.jdbc.Sql;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
 import static cz.kromer.restshopdemo.TestConstants.SQL_CLEANUP;
 import static cz.kromer.restshopdemo.dto.OrderState.CANCELLED;
 import static cz.kromer.restshopdemo.dto.OrderState.NEW;
@@ -14,26 +30,10 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.number.OrderingComparison.comparesEqualTo;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.jdbc.Sql;
-
-import cz.kromer.restshopdemo.E2ETestParent;
-import cz.kromer.restshopdemo.dto.OrderDto;
-import cz.kromer.restshopdemo.dto.OrderItemDto;
-import cz.kromer.restshopdemo.dto.OrderProductDto;
-import cz.kromer.restshopdemo.dto.ProductDto;
-import cz.kromer.restshopdemo.service.ProductService;
-import io.restassured.RestAssured;
-
-class OrderControllerTest extends E2ETestParent {
+class OrderControllerTest extends SpringTest {
 
     static final UUID ORDER_1_ID = fromString("fa254654-bdbc-431b-8b9e-f6bf34540ee9");
 
@@ -76,7 +76,7 @@ class OrderControllerTest extends E2ETestParent {
     @Sql({ SQL_CLEANUP, "/sql/complex-test-data.sql" })
     void shouldSaveOrderAndUpdateStock_WhenValid() {
         RestAssured.given().contentType(JSON).log().all()
-                .body(OrderDto.builder()
+                .body(CreateOrderDto.builder()
                         .items(List.of(
                                 OrderItemDto.builder().product(OrderProductDto.builder().id(PRODUCT_1_ID).build())
                                         .amount(BigDecimal.valueOf(4)).build(),
@@ -109,7 +109,7 @@ class OrderControllerTest extends E2ETestParent {
     void shouldCancelOrderAndUpdateStock() {
         RestAssured.given().when()
             .put("/orders/{id}/cancel", ORDER_1_ID).then().assertThat()
-            .statusCode(OK.value());
+            .statusCode(NO_CONTENT.value());
 
         RestAssured.given().when()
             .get("/orders/{id}", ORDER_1_ID).then().log().all().assertThat()
@@ -128,7 +128,7 @@ class OrderControllerTest extends E2ETestParent {
     void shouldPayOrder() {
         RestAssured.given().when()
             .put("/orders/{id}/pay", ORDER_1_ID).then().assertThat()
-            .statusCode(OK.value());
+            .statusCode(NO_CONTENT.value());
 
         RestAssured.given().when()
             .get("/orders/{id}", ORDER_1_ID).then().log().all().assertThat()

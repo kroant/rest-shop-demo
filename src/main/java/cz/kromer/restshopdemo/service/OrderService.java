@@ -1,6 +1,8 @@
 package cz.kromer.restshopdemo.service;
 
-import cz.kromer.restshopdemo.dto.OrderDto;
+import cz.kromer.restshopdemo.dto.CreateOrderDto;
+import cz.kromer.restshopdemo.dto.OrderProductDto;
+import cz.kromer.restshopdemo.dto.OrderResponseDto;
 import cz.kromer.restshopdemo.dto.OrderState;
 import cz.kromer.restshopdemo.entity.Order;
 import cz.kromer.restshopdemo.entity.OrderItem;
@@ -10,11 +12,12 @@ import cz.kromer.restshopdemo.exception.IllegalAmountScaleException;
 import cz.kromer.restshopdemo.exception.IllegalOrderStateException;
 import cz.kromer.restshopdemo.exception.RootEntityNotFoundException;
 import cz.kromer.restshopdemo.mapper.OrderMapper;
+import cz.kromer.restshopdemo.mapper.OrderResponseDtoMapper;
 import cz.kromer.restshopdemo.repository.OrderRepository;
 import cz.kromer.restshopdemo.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -43,18 +46,19 @@ public class OrderService {
     OrderRepository orderRepository;
     ProductRepository productRepository;
     OrderMapper orderMapper;
-    BeanFactory beanFactory;
+    OrderResponseDtoMapper orderResponseDtoMapper;
+    ObjectFactory<StockShortageWatcher> stockShortageWatcherFactory;
 
     @Transactional(readOnly = true)
-    public List<OrderDto> findAll() {
+    public List<OrderResponseDto> findAll() {
         return orderRepository.findAllByOrderByStateAscCreatedOnDesc().stream()
-                .map(orderMapper::mapToOrderDto)
+                .map(orderResponseDtoMapper::mapFrom)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public OrderDto getById(UUID id) {
-        return orderMapper.mapToOrderDto(
+    public OrderResponseDto getById(UUID id) {
+        return orderResponseDtoMapper.mapFrom(
                 orderRepository.findById(id)
                         .orElseThrow(() -> new RootEntityNotFoundException(id))
         );
@@ -62,18 +66,17 @@ public class OrderService {
 
     @Retryable(retryFor = { ConcurrencyFailureException.class })
     @Transactional(isolation = READ_COMMITTED)
-    public UUID save(OrderDto order) {
-        Order entity = orderMapper.mapToOrder(order);
+    public UUID save(CreateOrderDto order) {
+        Order entity = orderMapper.mapFrom(order, this::findPersistentProductAndLock);
         List<OrderItem> items = entity.getItems();
 
-        items.forEach(this::fillPersistentProductAndLock);
-        items.forEach(OrderService::validateAmountScale);
+        items.forEach(this::validateAmountScale);
 
-        StockShortageWatcher stock = beanFactory.getBean(StockShortageWatcher.class);
+        StockShortageWatcher stock = stockShortageWatcherFactory.getObject();
         stock.take(items);
 
         entity.setPrice(items.stream()
-                .map(OrderService::countPrice)
+                .map(this::countPrice)
                 .reduce(ZERO, BigDecimal::add)
         );
         entity = orderRepository.save(entity);
@@ -108,11 +111,10 @@ public class OrderService {
         return orderRepository.findNewOrdersBefore(before);
     }
 
-    private void fillPersistentProductAndLock(OrderItem orderItem) {
-        UUID id = orderItem.getProduct().getId();
-        orderItem.setProduct(productRepository.findAndLockById(id)
-                .orElseThrow(() -> new AssociatedEntityNotFoundException(id))
-        );
+    private Product findPersistentProductAndLock(OrderProductDto orderProduct) {
+        UUID id = orderProduct.getId();
+        return productRepository.findAndLockById(id)
+                .orElseThrow(() -> new AssociatedEntityNotFoundException(id));
     }
 
     private void returnToStock(OrderItem item) {
@@ -123,18 +125,18 @@ public class OrderService {
                 });
     }
 
-    private static void validateAmountScale(OrderItem item) {
+    private void validateAmountScale(OrderItem item) {
         Product product = item.getProduct();
         if (!isScaleValid(item.getAmount(), product.getUnit())) {
             throw new IllegalAmountScaleException(product.getId());
         }
     }
 
-    private static BigDecimal countPrice(OrderItem item) {
+    private BigDecimal countPrice(OrderItem item) {
         return item.getAmount().multiply(item.getProduct().getPrice());
     }
 
-    private static void validateOrderState(Order order, OrderState... allowedStates) {
+    private void validateOrderState(Order order, OrderState... allowedStates) {
         EnumSet<OrderState> allowedSet = EnumSet.copyOf(asList(allowedStates));
         if (!allowedSet.contains(order.getState())) {
             throw new IllegalOrderStateException(order.getId(), order.getState(), allowedSet);

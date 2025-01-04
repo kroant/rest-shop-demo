@@ -1,4 +1,24 @@
-package cz.kromer.restshopdemo.exception;
+package cz.kromer.restshopdemo.controller;
+
+import cz.kromer.restshopdemo.dto.error.ErrorDetailDto;
+import cz.kromer.restshopdemo.dto.error.ErrorDetailValueDto;
+import cz.kromer.restshopdemo.dto.error.ErrorResponseDto;
+import cz.kromer.restshopdemo.exception.AssociatedEntityNotFoundException;
+import cz.kromer.restshopdemo.exception.IllegalAmountScaleException;
+import cz.kromer.restshopdemo.exception.IllegalOrderStateException;
+import cz.kromer.restshopdemo.exception.ProductShortageException;
+import cz.kromer.restshopdemo.exception.ProductStockShortageDto;
+import cz.kromer.restshopdemo.exception.RootEntityNotFoundException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import static cz.kromer.restshopdemo.dto.error.ErrorDetailValueType.ALLOWED_STATE;
 import static cz.kromer.restshopdemo.dto.error.ErrorDetailValueType.CURRENT_STATE;
@@ -13,21 +33,7 @@ import static java.util.stream.Stream.concat;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.status;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Stream;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import cz.kromer.restshopdemo.dto.error.ErrorDetailDto;
-import cz.kromer.restshopdemo.dto.error.ErrorDetailValueDto;
-import cz.kromer.restshopdemo.dto.error.ErrorResponseDto;
+import static org.springframework.util.StringUtils.hasLength;
 
 @RestControllerAdvice
 public class RestResponseEntityExceptionHandler {
@@ -47,7 +53,7 @@ public class RestResponseEntityExceptionHandler {
         return badRequest().body(ErrorResponseDto.builder()
                 .errorCode(PRODUCT_STOCK_SHORTAGE)
                 .errorDetails(e.getProductShortages().stream()
-                        .map(RestResponseEntityExceptionHandler::mapToErrorDetail).toList())
+                        .map(this::mapToErrorDetail).toList())
                 .build());
     }
 
@@ -77,11 +83,11 @@ public class RestResponseEntityExceptionHandler {
         return badRequest().body(ErrorResponseDto.builder()
                 .errorCode(REQUEST_VALIDATION_ERROR)
                 .errorDetails(e.getAllErrors().stream()
-                        .map(RestResponseEntityExceptionHandler::mapToErrorDetail).toList())
+                        .map(this::mapToErrorDetail).toList())
                 .build());
     }
 
-    private static ErrorResponseDto mapToEntityNotFoundResponse(UUID entityId) {
+    private ErrorResponseDto mapToEntityNotFoundResponse(UUID entityId) {
         return ErrorResponseDto.builder()
                 .errorCode(ENTITY_NOT_FOUND)
                 .errorDetails(List.of(ErrorDetailDto.builder()
@@ -90,17 +96,21 @@ public class RestResponseEntityExceptionHandler {
                 .build();
     }
 
-    private static ErrorDetailDto mapToErrorDetail(ObjectError objectError) {
+    private ErrorDetailDto mapToErrorDetail(ObjectError objectError) {
         return ErrorDetailDto.builder()
                 .field(objectError instanceof FieldError fieldError ? fieldError.getField() : null)
-                .values(List.of(ErrorDetailValueDto.builder()
-                            .type(VALIDATION_CODE)
-                            .value(objectError.getCode())
-                            .build()))
+                .message(objectError.getDefaultMessage())
+                .values(hasLength(objectError.getCode())
+                    ? List.of(ErrorDetailValueDto.builder()
+                        .type(VALIDATION_CODE)
+                        .value(objectError.getCode())
+                        .build())
+                    : null
+                )
                 .build();
     }
 
-    private static List<ErrorDetailValueDto> mapToDetailValues(IllegalOrderStateException e) {
+    private List<ErrorDetailValueDto> mapToDetailValues(IllegalOrderStateException e) {
         return concat(
                 Stream.of(ErrorDetailValueDto.builder()
                         .type(CURRENT_STATE)
@@ -112,7 +122,7 @@ public class RestResponseEntityExceptionHandler {
                 .toList();
     }
 
-    private static ErrorDetailDto mapToErrorDetail(ProductStockShortageDto shortage) {
+    private ErrorDetailDto mapToErrorDetail(ProductStockShortageDto shortage) {
         return ErrorDetailDto.builder()
                 .entityId(shortage.getProduct().getId())
                 .values(List.of(ErrorDetailValueDto.builder()

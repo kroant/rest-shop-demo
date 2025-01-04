@@ -1,22 +1,23 @@
 package cz.kromer.restshopdemo.service;
 
-import static cz.kromer.restshopdemo.TestConstants.SQL_CLEANUP;
-import static cz.kromer.restshopdemo.dto.OrderState.CANCELLED;
-import static cz.kromer.restshopdemo.dto.OrderState.NEW;
-import static cz.kromer.restshopdemo.dto.OrderState.PAID;
-import static java.util.UUID.fromString;
-import static org.junit.jupiter.api.Assertions.assertSame;
-
-import java.util.UUID;
-
+import cz.kromer.restshopdemo.SpringTest;
+import cz.kromer.restshopdemo.dto.OrderState;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
-import cz.kromer.restshopdemo.E2ETestParent;
-import cz.kromer.restshopdemo.dto.OrderState;
+import java.time.Instant;
+import java.util.UUID;
 
-class OrderCancellationTaskTest extends E2ETestParent {
+import static cz.kromer.restshopdemo.TestConstants.SQL_CLEANUP;
+import static cz.kromer.restshopdemo.TestConstants.SQL_COMPLEX_TEST_DATA;
+import static cz.kromer.restshopdemo.dto.OrderState.CANCELLED;
+import static cz.kromer.restshopdemo.dto.OrderState.NEW;
+import static cz.kromer.restshopdemo.dto.OrderState.PAID;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+class OrderCancellationTaskTest extends SpringTest {
 
     @Autowired
     private OrderCancellationTask task;
@@ -25,18 +26,19 @@ class OrderCancellationTaskTest extends E2ETestParent {
     private OrderService orderService;
 
     @Test
-    @Sql({ SQL_CLEANUP, "/sql/orders-recently-created.sql" })
+    @Sql({SQL_CLEANUP, SQL_COMPLEX_TEST_DATA})
     void shouldCancelObsoleteOrders() {
+        when(clock.instant()).thenReturn(Instant.parse("2022-01-05T16:00:00Z"));
+
         task.cancelObsoleteOrders();
 
-        assertOrderInState(fromString("0d3ea9d7-9c23-46c7-9c76-861586a4eeb1"), NEW);
-        assertOrderInState(fromString("122c1845-1647-47ba-8254-7cfde64261bd"), CANCELLED);
-        assertOrderInState(fromString("8b731ad0-35f8-4af1-b8a2-b4d874bf1dc8"), CANCELLED);
-        assertOrderInState(fromString("959000c0-0fe5-478e-8ccf-bb47c4c07c6c"), PAID);
-        assertOrderInState(fromString("4774fbe9-a259-4ac7-a6df-a160038c077d"), CANCELLED);
+        assertOrderInState("27408323-1031-4658-8995-7ecff8f2b26f", CANCELLED);
+        assertOrderInState("fa254654-bdbc-431b-8b9e-f6bf34540ee9", CANCELLED);
+        assertOrderInState("b3a48eee-65a4-431b-a11a-e770a7f0ba8b", NEW);
+        assertOrderInState("e2a878e6-72c6-49f5-b391-cb60fbca944e", PAID);
     }
 
-    private void assertOrderInState(UUID id, OrderState state) {
-        assertSame(state, orderService.getById(id).getState());
+    private void assertOrderInState(String id, OrderState state) {
+        assertThat(orderService.getById(UUID.fromString(id)).getState()).isSameAs(state);
     }
 }

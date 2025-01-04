@@ -1,31 +1,28 @@
 package cz.kromer.restshopdemo.entity;
 
-import static cz.kromer.restshopdemo.dto.OrderState.NEW;
-import static jakarta.persistence.CascadeType.PERSIST;
-import static jakarta.persistence.EnumType.STRING;
-import static lombok.AccessLevel.PRIVATE;
-import static org.springframework.util.CollectionUtils.isEmpty;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
-
+import cz.kromer.restshopdemo.dto.OrderState;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-
-import cz.kromer.restshopdemo.dto.OrderState;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.EnumType.STRING;
+import static lombok.AccessLevel.PRIVATE;
 
 @FieldDefaults(level = PRIVATE)
 @Getter
@@ -48,16 +45,7 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = { PERSIST })
     List<OrderItem> items;
 
+    @CreationTimestamp
     @Column(updatable = false)
     Instant createdOn;
-
-    @PrePersist
-    private void prePersist() {
-        setState(NEW);
-        setCreatedOn(Instant.now());
-
-        if (!isEmpty(getItems())) {
-            getItems().forEach(item -> item.setOrder(this));
-        }
-    }
 }

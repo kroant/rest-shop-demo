@@ -1,20 +1,20 @@
 package cz.kromer.restshopdemo.service;
 
-import static java.time.temporal.ChronoUnit.MINUTES;
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static lombok.AccessLevel.PRIVATE;
-
-import java.time.Instant;
-import java.util.UUID;
-
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
 import cz.kromer.restshopdemo.config.SchedulingProps;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.UUID;
+
+import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static lombok.AccessLevel.PRIVATE;
 
 @Component
 @RequiredArgsConstructor
@@ -22,14 +22,15 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 @Slf4j
 public class OrderCancellationTask {
 
+    Clock clock;
     OrderService orderService;
     SchedulingProps schedulingProps;
 
     @Scheduled(cron = "${app.scheduling.order-cancellation.cron}")
     @SchedulerLock(name = "cancelObsoleteOrders")
     public void cancelObsoleteOrders() {
-        final Instant before = Instant.now()
-                .minus(schedulingProps.getOrderCancellation().getNewOrderRetentionMinutes(), MINUTES)
+        final Instant before = now(clock)
+                .minus(schedulingProps.getOrderCancellation().getNewOrderRetentionDuration())
                 .truncatedTo(SECONDS);
         log.info("Cancelling NEW orders created before {}", before);
         orderService.findNewOrdersBefore(before)

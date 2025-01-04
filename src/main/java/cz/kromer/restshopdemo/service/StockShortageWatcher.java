@@ -1,23 +1,22 @@
 package cz.kromer.restshopdemo.service;
 
-import static java.math.BigDecimal.ZERO;
-import static lombok.AccessLevel.PRIVATE;
-import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
+import cz.kromer.restshopdemo.entity.OrderItem;
+import cz.kromer.restshopdemo.entity.Product;
+import cz.kromer.restshopdemo.exception.ProductShortageException;
+import cz.kromer.restshopdemo.exception.ProductStockShortageDto;
+import cz.kromer.restshopdemo.mapper.OrderProductDtoMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
-import cz.kromer.restshopdemo.entity.OrderItem;
-import cz.kromer.restshopdemo.entity.Product;
-import cz.kromer.restshopdemo.exception.ProductShortageException;
-import cz.kromer.restshopdemo.exception.ProductStockShortageDto;
-import cz.kromer.restshopdemo.mapper.ProductMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import static java.math.BigDecimal.ZERO;
+import static lombok.AccessLevel.PRIVATE;
+import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 
 @Component
 @Scope(SCOPE_PROTOTYPE)
@@ -25,7 +24,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 class StockShortageWatcher {
 
-    ProductMapper productMapper;
+    OrderProductDtoMapper orderProductDtoMapper;
 
     List<ProductStockShortageDto> shortages = new LinkedList<>();
 
@@ -41,7 +40,7 @@ class StockShortageWatcher {
         final BigDecimal newAmount = product.getStock().subtract(item.getAmount());
         if (newAmount.compareTo(ZERO) < 0) {
             shortages.add(ProductStockShortageDto.builder()
-                    .product(productMapper.mapToOrderProduct(product))
+                    .product(orderProductDtoMapper.mapFrom(product))
                     .missingAmount(newAmount.negate())
                     .build());
         } else {

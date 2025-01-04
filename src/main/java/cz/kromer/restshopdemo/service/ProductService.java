@@ -3,6 +3,7 @@ package cz.kromer.restshopdemo.service;
 import cz.kromer.restshopdemo.dto.ProductDto;
 import cz.kromer.restshopdemo.entity.Product;
 import cz.kromer.restshopdemo.exception.RootEntityNotFoundException;
+import cz.kromer.restshopdemo.mapper.ProductDtoMapper;
 import cz.kromer.restshopdemo.mapper.ProductMapper;
 import cz.kromer.restshopdemo.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,17 +25,18 @@ public class ProductService {
 
     ProductRepository productRepository;
     ProductMapper productMapper;
+    ProductDtoMapper productDtoMapper;
 
     @Transactional(readOnly = true)
     public List<ProductDto> findAll() {
         return productRepository.findAll().stream()
-                .map(productMapper::mapToProductDto)
+                .map(productDtoMapper::mapFrom)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public ProductDto getById(UUID id) {
-        return productMapper.mapToProductDto(
+        return productDtoMapper.mapFrom(
                 productRepository.findById(id)
                         .orElseThrow(() -> new RootEntityNotFoundException(id))
         );
@@ -42,7 +44,7 @@ public class ProductService {
 
     @Transactional
     public UUID save(ProductDto product) {
-        Product entity = productMapper.mapToProduct(product);
+        Product entity = productMapper.mapFrom(product);
         entity = productRepository.save(entity);
         return entity.getId();
     }

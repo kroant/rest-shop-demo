@@ -10,6 +10,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
 import java.math.BigDecimal;
@@ -18,11 +19,11 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.jdbc.Sql;
 
-import cz.kromer.restshopdemo.E2ETestParent;
+import cz.kromer.restshopdemo.SpringTest;
 import cz.kromer.restshopdemo.dto.ProductDto;
 import io.restassured.RestAssured;
 
-class ProductControllerTest extends E2ETestParent {
+class ProductControllerTest extends SpringTest {
 
     static final UUID PRODUCT_1_ID = fromString("10b10895-cce9-48c6-bc8c-7025d0a7fe57");
 
@@ -119,7 +120,7 @@ class ProductControllerTest extends E2ETestParent {
     void shouldDeleteProduct_WhenExists() {
         RestAssured.given().log().all().when()
             .delete("/products/{id}", PRODUCT_1_ID).then().assertThat()
-            .statusCode(OK.value());
+            .statusCode(NO_CONTENT.value());
 
         RestAssured.given().when()
             .get("/products").then().log().all().assertThat()

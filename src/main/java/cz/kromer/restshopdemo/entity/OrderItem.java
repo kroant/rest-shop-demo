@@ -1,19 +1,17 @@
 package cz.kromer.restshopdemo.entity;
 
-import static lombok.AccessLevel.PRIVATE;
-
-import java.io.Serializable;
-import java.math.BigDecimal;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
+
+import java.math.BigDecimal;
+
+import static lombok.AccessLevel.PRIVATE;
 
 @FieldDefaults(level = PRIVATE)
 @Getter
@@ -21,8 +19,7 @@ import lombok.experimental.FieldDefaults;
 @EqualsAndHashCode(of = { "order", "product" })
 @ToString(of = { "product", "amount" })
 @Entity
-public class OrderItem implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class OrderItem {
 
     @Id
     @ManyToOne

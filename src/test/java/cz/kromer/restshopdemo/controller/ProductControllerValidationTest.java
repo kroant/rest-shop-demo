@@ -25,12 +25,12 @@ import jakarta.validation.constraints.Size;
 
 import org.junit.jupiter.api.Test;
 
-import cz.kromer.restshopdemo.E2ETestParent;
+import cz.kromer.restshopdemo.SpringTest;
 import cz.kromer.restshopdemo.dto.ProductDto;
 import cz.kromer.restshopdemo.dto.validation.ProductStockMaxScale;
 import io.restassured.RestAssured;
 
-class ProductControllerValidationTest extends E2ETestParent {
+class ProductControllerValidationTest extends SpringTest {
 
     @Test
     void shouldFail400_whenIdInvalid() {

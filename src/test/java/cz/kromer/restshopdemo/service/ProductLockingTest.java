@@ -1,7 +1,7 @@
 package cz.kromer.restshopdemo.service;
 
-import cz.kromer.restshopdemo.E2ETestParent;
-import cz.kromer.restshopdemo.dto.OrderDto;
+import cz.kromer.restshopdemo.SpringTest;
+import cz.kromer.restshopdemo.dto.CreateOrderDto;
 import cz.kromer.restshopdemo.dto.OrderItemDto;
 import cz.kromer.restshopdemo.dto.OrderProductDto;
 import cz.kromer.restshopdemo.dto.ProductDto;
@@ -23,7 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.OrderingComparison.comparesEqualTo;
 
 @Disabled("Locking Test uses thread sleeping. Only for proper locking investigation purpose.")
-class ProductLockingTest extends E2ETestParent {
+class ProductLockingTest extends SpringTest {
 
     static final UUID PRODUCT_1_ID = fromString("10b10895-cce9-48c6-bc8c-7025d0a7fe57");
     static final UUID PRODUCT_2_ID = fromString("3e752234-0a19-49c0-ba18-cfebf0bb7772");
@@ -49,7 +49,7 @@ class ProductLockingTest extends E2ETestParent {
 
         lockingTransaction.waitUntilProductLocked();
 
-        orderService.save(OrderDto.builder().items(List.of(
+        orderService.save(CreateOrderDto.builder().items(List.of(
                 OrderItemDto.builder().product(OrderProductDto.builder().id(PRODUCT_1_ID).build()).amount(ONE).build(),
                 OrderItemDto.builder().product(OrderProductDto.builder().id(PRODUCT_2_ID).build()).amount(ONE).build()))
                 .build());

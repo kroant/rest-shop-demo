@@ -1,5 +1,22 @@
 package cz.kromer.restshopdemo.controller;
 
+import cz.kromer.restshopdemo.SpringTest;
+import cz.kromer.restshopdemo.dto.CreateOrderDto;
+import cz.kromer.restshopdemo.dto.OrderItemDto;
+import cz.kromer.restshopdemo.dto.OrderProductDto;
+import cz.kromer.restshopdemo.dto.ProductDto;
+import cz.kromer.restshopdemo.dto.validation.UniqueOrderProduct;
+import cz.kromer.restshopdemo.service.ProductService;
+import io.restassured.RestAssured;
+import jakarta.validation.constraints.NotNull;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.jdbc.Sql;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+
 import static cz.kromer.restshopdemo.TestConstants.SQL_CLEANUP;
 import static cz.kromer.restshopdemo.controller.OrderControllerTest.PRODUCT_1_ID;
 import static cz.kromer.restshopdemo.controller.OrderControllerTest.PRODUCT_2_ID;
@@ -25,26 +42,7 @@ import static org.hamcrest.number.OrderingComparison.comparesEqualTo;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
-
-import jakarta.validation.constraints.NotNull;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.jdbc.Sql;
-
-import cz.kromer.restshopdemo.E2ETestParent;
-import cz.kromer.restshopdemo.dto.OrderDto;
-import cz.kromer.restshopdemo.dto.OrderItemDto;
-import cz.kromer.restshopdemo.dto.OrderProductDto;
-import cz.kromer.restshopdemo.dto.ProductDto;
-import cz.kromer.restshopdemo.dto.validation.UniqueOrderProduct;
-import cz.kromer.restshopdemo.service.ProductService;
-import io.restassured.RestAssured;
-
-class OrderControllerValidationTest extends E2ETestParent {
+class OrderControllerValidationTest extends SpringTest {
 
     static final UUID ORDER_PAID_ID = fromString("e2a878e6-72c6-49f5-b391-cb60fbca944e");
 
@@ -54,7 +52,7 @@ class OrderControllerValidationTest extends E2ETestParent {
     @Test
     void shouldFail400_WhenOrderItemNull() {
         RestAssured.given().contentType(JSON).log().all()
-                .body(OrderDto.builder()
+                .body(CreateOrderDto.builder()
                         .items(asList(null,
                                 OrderItemDto.builder().product(OrderProductDto.builder().id(PRODUCT_2_ID).build())
                                         .amount(BigDecimal.valueOf(110000)).build()))
@@ -73,7 +71,7 @@ class OrderControllerValidationTest extends E2ETestParent {
     @Test
     void shouldFail400_WhenProductIdNull() {
         RestAssured.given().contentType(JSON).log().all()
-                .body(OrderDto.builder()
+                .body(CreateOrderDto.builder()
                         .items(List.of(
                                 OrderItemDto.builder().product(OrderProductDto.builder().id(null).build())
                                         .amount(BigDecimal.valueOf(32)).build(),
@@ -94,7 +92,7 @@ class OrderControllerValidationTest extends E2ETestParent {
     @Test
     void shouldFail400_WhenProductIdDuplicate() {
         RestAssured.given().contentType(JSON).log().all()
-                .body(OrderDto.builder()
+                .body(CreateOrderDto.builder()
                         .items(List.of(
                                 OrderItemDto.builder().product(OrderProductDto.builder().id(PRODUCT_1_ID).build())
                                         .amount(BigDecimal.valueOf(32)).build(),
@@ -116,7 +114,7 @@ class OrderControllerValidationTest extends E2ETestParent {
     @Sql({ SQL_CLEANUP, "/sql/complex-test-data.sql" })
     void shouldFail400AndLeaveStockUnchanged_WhenIllegalAmountScale() {
         RestAssured.given().contentType(JSON).log().all()
-                .body(OrderDto.builder()
+                .body(CreateOrderDto.builder()
                         .items(List.of(
                                 OrderItemDto.builder().product(OrderProductDto.builder().id(PRODUCT_1_ID).build())
                                         .amount(BigDecimal.valueOf(32)).build(),
@@ -141,7 +139,7 @@ class OrderControllerValidationTest extends E2ETestParent {
     @Sql({ SQL_CLEANUP, "/sql/complex-test-data.sql" })
     void shouldFail400AndLeaveStockUnchanged_WhenProductStockShortage() {
         RestAssured.given().contentType(JSON).log().all()
-                .body(OrderDto.builder()
+                .body(CreateOrderDto.builder()
                         .items(List.of(
                                 OrderItemDto.builder().product(OrderProductDto.builder().id(PRODUCT_1_ID).build())
                                         .amount(BigDecimal.valueOf(32)).build(),
@@ -172,7 +170,7 @@ class OrderControllerValidationTest extends E2ETestParent {
     @Sql({ SQL_CLEANUP, "/sql/complex-test-data.sql" })
     void shouldFail400AndLeaveStockUnchanged_WhenProductNotFound() {
         RestAssured.given().contentType(JSON).log().all()
-                .body(OrderDto.builder()
+                .body(CreateOrderDto.builder()
                         .items(List.of(
                                 OrderItemDto.builder().product(OrderProductDto.builder().id(PRODUCT_1_ID).build())
                                         .amount(BigDecimal.valueOf(32)).build(),
