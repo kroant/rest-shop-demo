@@ -1,131 +1,169 @@
 package cz.kromer.restshopdemo.controller;
 
+import cz.kromer.restshopdemo.SpringTest;
+import cz.kromer.restshopdemo.dto.ProductDto;
+import cz.kromer.restshopdemo.service.ProductService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.jdbc.Sql;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+
+import static cz.kromer.restshopdemo.TestConstants.CASHEW_NUTS_PRODUCT_ID;
+import static cz.kromer.restshopdemo.TestConstants.MILK_1_L_PRODUCT_ID;
+import static cz.kromer.restshopdemo.TestConstants.MILK_500_ML_PRODUCT_ID;
 import static cz.kromer.restshopdemo.TestConstants.SQL_CLEANUP;
+import static cz.kromer.restshopdemo.TestConstants.SQL_COMPLEX_TEST_DATA;
+import static cz.kromer.restshopdemo.dto.QuantityUnit.GRAM;
 import static cz.kromer.restshopdemo.dto.QuantityUnit.LITER;
 import static cz.kromer.restshopdemo.dto.QuantityUnit.PIECE;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static io.restassured.http.ContentType.JSON;
-import static java.util.UUID.fromString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.test.context.jdbc.Sql;
-
-import cz.kromer.restshopdemo.SpringTest;
-import cz.kromer.restshopdemo.dto.ProductDto;
-import io.restassured.RestAssured;
-
 class ProductControllerTest extends SpringTest {
 
-    static final UUID PRODUCT_1_ID = fromString("10b10895-cce9-48c6-bc8c-7025d0a7fe57");
+    @Autowired
+    ProductService productService;
 
     @Test
-    @Sql({ SQL_CLEANUP, "/sql/complex-test-data.sql" })
-    void shouldGetAllProducts_whenExist() {
-        RestAssured.given().when()
-            .get("/products").then().log().all().assertThat()
-            .statusCode(OK.value())
-            .body("$", hasSize(3))
-            .body(containsString(PRODUCT_1_ID.toString()));
+    @Sql({SQL_CLEANUP, SQL_COMPLEX_TEST_DATA})
+    void shouldGetAllProducts_WhenExist() {
+        List<ProductDto> response = when()
+                .get("/products")
+                .then()
+                .statusCode(OK.value())
+                .extract().jsonPath().getList(".", ProductDto.class);
+
+        assertThat(response).satisfiesExactly(
+                product -> {
+                        assertThat(product.getId()).isEqualTo(MILK_1_L_PRODUCT_ID);
+                        assertThat(product.getName()).isEqualTo("Milk 1 l");
+                        assertThat(product.getUnit()).isSameAs(PIECE);
+                        assertThat(product.getPrice()).isEqualByComparingTo("18.5");
+                        assertThat(product.getStock()).isEqualByComparingTo("50");
+                }, product -> {
+                        assertThat(product.getId()).isEqualTo(MILK_500_ML_PRODUCT_ID);
+                        assertThat(product.getName()).isEqualTo("Milk 500 ml");
+                        assertThat(product.getUnit()).isSameAs(PIECE);
+                        assertThat(product.getPrice()).isEqualByComparingTo("12");
+                        assertThat(product.getStock()).isEqualByComparingTo("30");
+                }, product -> {
+                        assertThat(product.getId()).isEqualTo(CASHEW_NUTS_PRODUCT_ID);
+                        assertThat(product.getName()).isEqualTo("Cashew Nuts");
+                        assertThat(product.getUnit()).isSameAs(GRAM);
+                        assertThat(product.getPrice()).isEqualByComparingTo("0.3");
+                        assertThat(product.getStock()).isEqualByComparingTo("100000");
+                }
+        );
     }
 
     @Test
-    @Sql({ SQL_CLEANUP, "/sql/complex-test-data.sql" })
-    void shouldGetProductById_whenExists() {
-        RestAssured.given().when()
-            .get("/products/{id}", PRODUCT_1_ID).then().log().all().assertThat()
-            .statusCode(OK.value())
-            .body("id", is(PRODUCT_1_ID.toString()))
-            .body("name", is("Milk 500 ml"))
-            .body("unit", is(PIECE.name()))
-            .body("price", is(12f))
-            .body("stock", is(30f));
+    @Sql({SQL_CLEANUP, SQL_COMPLEX_TEST_DATA})
+    void shouldGetProductById_WhenExists() {
+        ProductDto response = when()
+                .get("/products/{id}", MILK_500_ML_PRODUCT_ID)
+                .then()
+                .statusCode(OK.value()).extract().as(ProductDto.class);
+
+        assertThat(response.getId()).isEqualTo(MILK_500_ML_PRODUCT_ID);
+        assertThat(response.getName()).isEqualTo("Milk 500 ml");
+        assertThat(response.getUnit()).isSameAs(PIECE);
+        assertThat(response.getPrice()).isEqualByComparingTo("12");
+        assertThat(response.getStock()).isEqualByComparingTo("30");
     }
 
     @Test
     void shouldSaveProduct_WhenValid() {
-        RestAssured.given().contentType(JSON).log().all()
-            .body(ProductDto.builder()
-                    .name("Bread 1 kg")
-                    .unit(PIECE)
-                    .price(BigDecimal.valueOf(32))
-                    .stock(BigDecimal.valueOf(6000, 2))
-                    .build()).when()
-            .post("/products").then().log().all().assertThat()
-            .statusCode(OK.value())
-            .body("id", notNullValue())
-            .body("name", is("Bread 1 kg"))
-            .body("unit", is(PIECE.name()))
-            .body("price", is(32f))
-            .body("stock", is(60f));
+        ProductDto response = given()
+                .contentType(JSON)
+                .body(ProductDto.builder()
+                        .name("Bread 1 kg")
+                        .unit(PIECE)
+                        .price(BigDecimal.valueOf(32))
+                        .stock(BigDecimal.valueOf(6000, 2))
+                        .build())
+                .post("/products")
+                .then()
+                .statusCode(OK.value())
+                .extract().as(ProductDto.class);
+
+        assertThat(response.getId()).isNotNull();
+        assertThat(response.getName()).isEqualTo("Bread 1 kg");
+        assertThat(response.getUnit()).isSameAs(PIECE);
+        assertThat(response.getPrice()).isEqualByComparingTo("32");
+        assertThat(response.getStock()).isEqualByComparingTo("60");
     }
 
     @Test
     void shouldGenerateIdAndSaveProduct_WhenIdProvided() {
-        RestAssured.given().contentType(JSON).log().all()
-            .body(ProductDto.builder()
-                    .id(new UUID(0, 0))
-                    .name("Bread 1 kg")
-                    .unit(PIECE)
-                    .price(BigDecimal.valueOf(32))
-                    .stock(BigDecimal.valueOf(60))
-                    .build()).when()
-            .post("/products").then().log().all().assertThat()
-            .statusCode(OK.value())
-            .body("id", not(new UUID(0, 0).toString())) // ID should be generated by the service.
-            .body("name", is("Bread 1 kg"))
-            .body("unit", is(PIECE.name()))
-            .body("price", is(32f))
-            .body("stock", is(60f));
+        UUID myUuid = UUID.fromString("dbff76c6-f59a-493b-95ee-98a4eef99a78");
+        ProductDto response = given()
+                .contentType(JSON)
+                .body(ProductDto.builder()
+                        .id(myUuid)
+                        .name("Bread 1 kg")
+                        .unit(PIECE)
+                        .price(BigDecimal.valueOf(32))
+                        .stock(BigDecimal.valueOf(60))
+                        .build())
+                .post("/products")
+                .then()
+                .statusCode(OK.value())
+                .extract().as(ProductDto.class);
+
+        assertThat(response.getId()).isNotNull().isNotEqualTo(myUuid);
+        assertThat(response.getName()).isEqualTo("Bread 1 kg");
+        assertThat(response.getUnit()).isSameAs(PIECE);
+        assertThat(response.getPrice()).isEqualByComparingTo("32");
+        assertThat(response.getStock()).isEqualByComparingTo("60");
     }
 
     @Test
-    @Sql({ SQL_CLEANUP, "/sql/complex-test-data.sql" })
+    @Sql({SQL_CLEANUP, SQL_COMPLEX_TEST_DATA})
     void shouldUpdateProduct_WhenValidAndExists() {
-        RestAssured.given().contentType(JSON).log().all()
-            .body(ProductDto.builder()
-                    .name("Updated Milk 500 ml")
-                    .unit(LITER)
-                    .price(BigDecimal.valueOf(10))
-                    .stock(BigDecimal.valueOf(40))
-                    .build()).when()
-            .put("/products/{id}", PRODUCT_1_ID).then().log().all().assertThat()
-            .statusCode(OK.value())
-            .body("id", is(PRODUCT_1_ID.toString()))
-            .body("name", is("Updated Milk 500 ml"))
-            .body("unit", is(LITER.name()))
-            .body("price", is(10f))
-            .body("stock", is(40f));
+        ProductDto response = given().contentType(JSON)
+                .body(ProductDto.builder()
+                        .name("Updated Milk 500 ml")
+                        .unit(LITER)
+                        .price(BigDecimal.valueOf(10))
+                        .stock(BigDecimal.valueOf(40))
+                        .build())
+                .put("/products/{id}", MILK_500_ML_PRODUCT_ID)
+                .then()
+                .statusCode(OK.value())
+                .extract().as(ProductDto.class);
 
-        RestAssured.given().when()
-            .get("/products/{id}", PRODUCT_1_ID).then().log().all().assertThat()
-            .statusCode(OK.value())
-            .body("id", is(PRODUCT_1_ID.toString()))
-            .body("name", is("Updated Milk 500 ml"))
-            .body("unit", is(LITER.name()))
-            .body("price", is(10f))
-            .body("stock", is(40f));
+        assertThat(response.getId()).isEqualTo(MILK_500_ML_PRODUCT_ID);
+        assertThat(response.getName()).isEqualTo("Updated Milk 500 ml");
+        assertThat(response.getUnit()).isSameAs(LITER);
+        assertThat(response.getPrice()).isEqualByComparingTo("10");
+        assertThat(response.getStock()).isEqualByComparingTo("40");
+
+        ProductDto updated = productService.getById(MILK_500_ML_PRODUCT_ID);
+        assertThat(updated.getId()).isEqualTo(MILK_500_ML_PRODUCT_ID);
+        assertThat(updated.getName()).isEqualTo("Updated Milk 500 ml");
+        assertThat(updated.getUnit()).isSameAs(LITER);
+        assertThat(updated.getPrice()).isEqualByComparingTo("10");
+        assertThat(updated.getStock()).isEqualByComparingTo("40");
     }
 
     @Test
-    @Sql({ SQL_CLEANUP, "/sql/complex-test-data.sql" })
+    @Sql({SQL_CLEANUP, SQL_COMPLEX_TEST_DATA})
     void shouldDeleteProduct_WhenExists() {
-        RestAssured.given().log().all().when()
-            .delete("/products/{id}", PRODUCT_1_ID).then().assertThat()
-            .statusCode(NO_CONTENT.value());
+        when()
+                .delete("/products/{id}", MILK_500_ML_PRODUCT_ID)
+                .then()
+                .statusCode(NO_CONTENT.value());
 
-        RestAssured.given().when()
-            .get("/products").then().log().all().assertThat()
-            .statusCode(OK.value())
-            .body("$", hasSize(2))
-            .body(not(containsString(PRODUCT_1_ID.toString())));
+        assertThat(productService.findAll()).satisfiesExactly(
+                product -> assertThat(product.getId()).isEqualTo(MILK_1_L_PRODUCT_ID),
+                product -> assertThat(product.getId()).isEqualTo(CASHEW_NUTS_PRODUCT_ID)
+        );
     }
 }

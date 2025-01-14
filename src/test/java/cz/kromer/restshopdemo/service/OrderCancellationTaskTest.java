@@ -20,10 +20,10 @@ import static org.mockito.Mockito.when;
 class OrderCancellationTaskTest extends SpringTest {
 
     @Autowired
-    private OrderCancellationTask task;
+    OrderCancellationTask task;
 
     @Autowired
-    private OrderService orderService;
+    OrderService orderService;
 
     @Test
     @Sql({SQL_CLEANUP, SQL_COMPLEX_TEST_DATA})
@@ -38,7 +38,7 @@ class OrderCancellationTaskTest extends SpringTest {
         assertOrderInState("e2a878e6-72c6-49f5-b391-cb60fbca944e", PAID);
     }
 
-    private void assertOrderInState(String id, OrderState state) {
+    void assertOrderInState(String id, OrderState state) {
         assertThat(orderService.getById(UUID.fromString(id)).getState()).isSameAs(state);
     }
 }

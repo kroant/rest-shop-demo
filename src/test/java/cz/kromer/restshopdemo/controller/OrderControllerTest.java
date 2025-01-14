@@ -37,7 +37,7 @@ class OrderControllerTest extends SpringTest {
 
     static final UUID ORDER_1_ID = fromString("fa254654-bdbc-431b-8b9e-f6bf34540ee9");
 
-    static final UUID PRODUCT_1_ID = ProductControllerTest.PRODUCT_1_ID;
+    static final UUID PRODUCT_1_ID = fromString("10b10895-cce9-48c6-bc8c-7025d0a7fe57");
     static final UUID PRODUCT_2_ID = fromString("a3c64d30-cb49-4279-9a83-282a7d0c7669");
 
     @Autowired

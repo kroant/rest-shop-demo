@@ -21,16 +21,16 @@ import static org.mockito.Mockito.when;
 class OrderCancellationTaskExceptionHandlingTest {
 
     @Mock
-    private OrderService orderService;
+    OrderService orderService;
 
     @Spy
-    private Clock clock = Clock.systemDefaultZone();
+    Clock clock = Clock.systemDefaultZone();
 
     @Spy
-    private SchedulingProps schedulingProps = new SchedulingProps();
+    SchedulingProps schedulingProps = new SchedulingProps();
 
     @InjectMocks
-    private OrderCancellationTask orderCancellationTask;
+    OrderCancellationTask orderCancellationTask;
 
     @Test
     void shouldProcessSecondOrder_WhenFirstOrderFails() {
