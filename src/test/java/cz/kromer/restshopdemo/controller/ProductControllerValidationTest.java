@@ -76,37 +76,36 @@ class ProductControllerValidationTest extends SpringTest {
                 assertThat(detailValue.getType()).isSameAs(VALIDATION_CODE));
         });
         assertThat(response.getErrorDetails()).satisfiesExactlyInAnyOrder(detail -> {
-                assertThat(detail.getField()).isEqualTo("name");
-                assertThat(detail.getMessage()).startsWith("must match");
-                assertThat(detail.getValues()).satisfiesExactly(detailValue ->
-                    assertThat(detailValue.getValue()).isEqualTo(Pattern.class.getSimpleName()));
-            }, detail -> {
-                assertThat(detail.getField()).isEqualTo("name");
-                assertThat(detail.getMessage()).isEqualTo("must not be blank");
-                assertThat(detail.getValues()).satisfiesExactly(detailValue ->
-                    assertThat(detailValue.getValue()).isEqualTo(NotBlank.class.getSimpleName()));
-            }, detail -> {
-                assertThat(detail.getField()).isEqualTo("name");
-                assertThat(detail.getMessage()).startsWith("size must be between 0 and");
-                assertThat(detail.getValues()).satisfiesExactly(detailValue ->
-                    assertThat(detailValue.getValue()).isEqualTo(Size.class.getSimpleName()));
-            }, detail -> {
-                assertThat(detail.getField()).isEqualTo("unit");
-                assertThat(detail.getMessage()).isEqualTo("must not be null");
-                assertThat(detail.getValues()).satisfiesExactly(detailValue ->
-                    assertThat(detailValue.getValue()).isEqualTo(NotNull.class.getSimpleName()));
-            }, detail -> {
-                assertThat(detail.getField()).isEqualTo("price");
-                assertThat(detail.getMessage()).isEqualTo("must be greater than or equal to 0");
-                assertThat(detail.getValues()).satisfiesExactly(detailValue ->
-                    assertThat(detailValue.getValue()).isEqualTo(PositiveOrZero.class.getSimpleName()));
-            }, detail -> {
-                assertThat(detail.getField()).isEqualTo("stock");
-                assertThat(detail.getMessage()).startsWith("numeric value out of bounds");
-                assertThat(detail.getValues()).satisfiesExactly(detailValue ->
-                    assertThat(detailValue.getValue()).isEqualTo(Digits.class.getSimpleName()));
-            }
-        );
+            assertThat(detail.getField()).isEqualTo("name");
+            assertThat(detail.getMessage()).startsWith("must match");
+            assertThat(detail.getValues()).satisfiesExactly(detailValue ->
+                assertThat(detailValue.getValue()).isEqualTo(Pattern.class.getSimpleName()));
+        }, detail -> {
+            assertThat(detail.getField()).isEqualTo("name");
+            assertThat(detail.getMessage()).isEqualTo("must not be blank");
+            assertThat(detail.getValues()).satisfiesExactly(detailValue ->
+                assertThat(detailValue.getValue()).isEqualTo(NotBlank.class.getSimpleName()));
+        }, detail -> {
+            assertThat(detail.getField()).isEqualTo("name");
+            assertThat(detail.getMessage()).startsWith("size must be between 0 and");
+            assertThat(detail.getValues()).satisfiesExactly(detailValue ->
+                assertThat(detailValue.getValue()).isEqualTo(Size.class.getSimpleName()));
+        }, detail -> {
+            assertThat(detail.getField()).isEqualTo("unit");
+            assertThat(detail.getMessage()).isEqualTo("must not be null");
+            assertThat(detail.getValues()).satisfiesExactly(detailValue ->
+                assertThat(detailValue.getValue()).isEqualTo(NotNull.class.getSimpleName()));
+        }, detail -> {
+            assertThat(detail.getField()).isEqualTo("price");
+            assertThat(detail.getMessage()).isEqualTo("must be greater than or equal to 0");
+            assertThat(detail.getValues()).satisfiesExactly(detailValue ->
+                assertThat(detailValue.getValue()).isEqualTo(PositiveOrZero.class.getSimpleName()));
+        }, detail -> {
+            assertThat(detail.getField()).isEqualTo("stock");
+            assertThat(detail.getMessage()).startsWith("numeric value out of bounds");
+            assertThat(detail.getValues()).satisfiesExactly(detailValue ->
+                assertThat(detailValue.getValue()).isEqualTo(Digits.class.getSimpleName()));
+        });
     }
 
     @Test

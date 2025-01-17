@@ -1,11 +1,11 @@
 package cz.kromer.restshopdemo;
 
-import lombok.experimental.UtilityClass;
-
 import java.util.UUID;
 
-@UtilityClass
-public class TestConstants {
+public final class TestConstants {
+
+    private TestConstants() {
+    }
 
     public static final String SQL_CLEANUP = "/sql/cleanup.sql";
     public static final String SQL_COMPLEX_TEST_DATA = "/sql/complex-test-data.sql";
