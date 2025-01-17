@@ -54,16 +54,16 @@ class OrderControllerValidationTest extends SpringTest {
     @Test
     void shouldFail400_WhenOrderItemNull() {
         ErrorResponseDto response = given()
-                .contentType(JSON)
-                .body(CreateOrderDto.builder()
-                        .items(asList(null,
-                                OrderItemDto.builder().product(OrderProductDto.builder().id(CASHEW_NUTS_PRODUCT_ID).build())
-                                        .amount(BigDecimal.valueOf(110_000)).build()))
-                        .build())
-                .post("/orders")
-                .then()
-                .statusCode(BAD_REQUEST.value())
-                .extract().as(ErrorResponseDto.class);
+            .contentType(JSON)
+            .body(CreateOrderDto.builder()
+                .items(asList(null,
+                    OrderItemDto.builder().product(OrderProductDto.builder().id(CASHEW_NUTS_PRODUCT_ID).build())
+                        .amount(BigDecimal.valueOf(110_000)).build()))
+                .build())
+            .post("/orders")
+            .then()
+            .statusCode(BAD_REQUEST.value())
+            .extract().as(ErrorResponseDto.class);
 
         assertThat(response.getErrorCode()).isSameAs(REQUEST_VALIDATION_ERROR);
         assertThat(response.getErrorDetails()).satisfiesExactly(detail -> {
@@ -80,18 +80,18 @@ class OrderControllerValidationTest extends SpringTest {
     @Test
     void shouldFail400_WhenProductIdNull() {
         ErrorResponseDto response = given()
-                .contentType(JSON)
-                .body(CreateOrderDto.builder()
-                        .items(List.of(
-                                OrderItemDto.builder().product(OrderProductDto.builder().id(null).build())
-                                        .amount(TEN).build(),
-                                OrderItemDto.builder().product(OrderProductDto.builder().id(CASHEW_NUTS_PRODUCT_ID).build())
-                                        .amount(BigDecimal.valueOf(110_000)).build()))
-                        .build())
-                .post("/orders")
-                .then()
-                .statusCode(BAD_REQUEST.value())
-                .extract().as(ErrorResponseDto.class);
+            .contentType(JSON)
+            .body(CreateOrderDto.builder()
+                .items(List.of(
+                    OrderItemDto.builder().product(OrderProductDto.builder().id(null).build())
+                        .amount(TEN).build(),
+                    OrderItemDto.builder().product(OrderProductDto.builder().id(CASHEW_NUTS_PRODUCT_ID).build())
+                        .amount(BigDecimal.valueOf(110_000)).build()))
+                .build())
+            .post("/orders")
+            .then()
+            .statusCode(BAD_REQUEST.value())
+            .extract().as(ErrorResponseDto.class);
 
         assertThat(response.getErrorCode()).isSameAs(REQUEST_VALIDATION_ERROR);
         assertThat(response.getErrorDetails()).satisfiesExactly(detail -> {
@@ -108,18 +108,18 @@ class OrderControllerValidationTest extends SpringTest {
     @Test
     void shouldFail400_WhenProductIdDuplicate() {
         ErrorResponseDto response = given()
-                .contentType(JSON)
-                .body(CreateOrderDto.builder()
-                        .items(List.of(
-                                OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_1_L_PRODUCT_ID).build())
-                                        .amount(TEN).build(),
-                                OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_1_L_PRODUCT_ID).build())
-                                        .amount(ONE).build()))
-                        .build())
-                .post("/orders")
-                .then()
-                .statusCode(BAD_REQUEST.value())
-                .extract().as(ErrorResponseDto.class);
+            .contentType(JSON)
+            .body(CreateOrderDto.builder()
+                .items(List.of(
+                    OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_1_L_PRODUCT_ID).build())
+                        .amount(TEN).build(),
+                    OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_1_L_PRODUCT_ID).build())
+                        .amount(ONE).build()))
+                .build())
+            .post("/orders")
+            .then()
+            .statusCode(BAD_REQUEST.value())
+            .extract().as(ErrorResponseDto.class);
 
         assertThat(response.getErrorCode()).isSameAs(REQUEST_VALIDATION_ERROR);
         assertThat(response.getErrorDetails()).satisfiesExactly(detail -> {
@@ -137,18 +137,18 @@ class OrderControllerValidationTest extends SpringTest {
     @Sql({SQL_CLEANUP, SQL_COMPLEX_TEST_DATA})
     void shouldFail400AndLeaveStockUnchanged_WhenIllegalAmountScale() {
         ErrorResponseDto response = given()
-                .contentType(JSON)
-                .body(CreateOrderDto.builder()
-                        .items(List.of(
-                                OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_500_ML_PRODUCT_ID).build())
-                                        .amount(BigDecimal.valueOf(4)).build(),
-                                OrderItemDto.builder().product(OrderProductDto.builder().id(CASHEW_NUTS_PRODUCT_ID).build())
-                                        .amount(BigDecimal.valueOf(10_005, 1)).build()))
-                        .build())
-                .post("/orders")
-                .then()
-                .statusCode(BAD_REQUEST.value())
-                .extract().as(ErrorResponseDto.class);
+            .contentType(JSON)
+            .body(CreateOrderDto.builder()
+                .items(List.of(
+                    OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_500_ML_PRODUCT_ID).build())
+                        .amount(BigDecimal.valueOf(4)).build(),
+                    OrderItemDto.builder().product(OrderProductDto.builder().id(CASHEW_NUTS_PRODUCT_ID).build())
+                        .amount(BigDecimal.valueOf(10_005, 1)).build()))
+                .build())
+            .post("/orders")
+            .then()
+            .statusCode(BAD_REQUEST.value())
+            .extract().as(ErrorResponseDto.class);
 
         assertThat(response.getErrorCode()).isSameAs(ILLEGAL_AMOUNT_SCALE);
         assertThat(response.getErrorDetails()).satisfiesExactly(detail -> {
@@ -157,6 +157,7 @@ class OrderControllerValidationTest extends SpringTest {
             assertThat(detail.getMessage()).isNull();
             assertThat(detail.getValues()).isNull();
         });
+
         assertThat(productService.getById(MILK_500_ML_PRODUCT_ID).getStock()).isEqualByComparingTo("30");
         assertThat(productService.getById(CASHEW_NUTS_PRODUCT_ID).getStock()).isEqualByComparingTo("100000");
     }
@@ -165,39 +166,38 @@ class OrderControllerValidationTest extends SpringTest {
     @Sql({SQL_CLEANUP, SQL_COMPLEX_TEST_DATA})
     void shouldFail400AndLeaveStockUnchanged_WhenProductStockShortage() {
         ErrorResponseDto response = given()
-                .contentType(JSON)
-                .body(CreateOrderDto.builder()
-                        .items(List.of(
-                                OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_500_ML_PRODUCT_ID).build())
-                                        .amount(BigDecimal.valueOf(32)).build(),
-                                OrderItemDto.builder().product(OrderProductDto.builder().id(CASHEW_NUTS_PRODUCT_ID).build())
-                                        .amount(BigDecimal.valueOf(110_000)).build()))
-                        .build())
-                .post("/orders")
-                .then()
-                .statusCode(BAD_REQUEST.value())
-                .extract().as(ErrorResponseDto.class);
+            .contentType(JSON)
+            .body(CreateOrderDto.builder()
+                .items(List.of(
+                    OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_500_ML_PRODUCT_ID).build())
+                        .amount(BigDecimal.valueOf(32)).build(),
+                    OrderItemDto.builder().product(OrderProductDto.builder().id(CASHEW_NUTS_PRODUCT_ID).build())
+                        .amount(BigDecimal.valueOf(110_000)).build()))
+                .build())
+            .post("/orders")
+            .then()
+            .statusCode(BAD_REQUEST.value())
+            .extract().as(ErrorResponseDto.class);
 
         assertThat(response.getErrorCode()).isSameAs(PRODUCT_STOCK_SHORTAGE);
-        assertThat(response.getErrorDetails()).satisfiesExactly(
-                detail -> {
-                    assertThat(detail.getEntityId()).isEqualTo(MILK_500_ML_PRODUCT_ID);
-                    assertThat(detail.getField()).isNull();
-                    assertThat(detail.getMessage()).isNull();
-                    assertThat(detail.getValues()).satisfiesExactly(value -> {
-                        assertThat(value.getType()).isSameAs(MISSING_AMOUNT);
-                        assertThat(value.getValue()).isEqualTo("2.000");
-                    });
-                }, detail -> {
-                    assertThat(detail.getEntityId()).isEqualTo(CASHEW_NUTS_PRODUCT_ID);
-                    assertThat(detail.getField()).isNull();
-                    assertThat(detail.getMessage()).isNull();
-                    assertThat(detail.getValues()).satisfiesExactly(value -> {
-                        assertThat(value.getType()).isSameAs(MISSING_AMOUNT);
-                        assertThat(value.getValue()).isEqualTo("10000.000");
-                    });
-                }
-        );
+        assertThat(response.getErrorDetails()).satisfiesExactly(detail -> {
+            assertThat(detail.getEntityId()).isEqualTo(MILK_500_ML_PRODUCT_ID);
+            assertThat(detail.getField()).isNull();
+            assertThat(detail.getMessage()).isNull();
+            assertThat(detail.getValues()).satisfiesExactly(value -> {
+                assertThat(value.getType()).isSameAs(MISSING_AMOUNT);
+                assertThat(value.getValue()).isEqualTo("2.000");
+            });
+        }, detail -> {
+            assertThat(detail.getEntityId()).isEqualTo(CASHEW_NUTS_PRODUCT_ID);
+            assertThat(detail.getField()).isNull();
+            assertThat(detail.getMessage()).isNull();
+            assertThat(detail.getValues()).satisfiesExactly(value -> {
+                assertThat(value.getType()).isSameAs(MISSING_AMOUNT);
+                assertThat(value.getValue()).isEqualTo("10000.000");
+            });
+        });
+
         assertThat(productService.getById(MILK_500_ML_PRODUCT_ID).getStock()).isEqualByComparingTo("30");
         assertThat(productService.getById(CASHEW_NUTS_PRODUCT_ID).getStock()).isEqualByComparingTo("100000");
     }
@@ -208,18 +208,18 @@ class OrderControllerValidationTest extends SpringTest {
         UUID productId = UUID.fromString("c51933b3-60bb-4b50-a29b-ad71f962095a");
 
         ErrorResponseDto response = given()
-                .contentType(JSON)
-                .body(CreateOrderDto.builder()
-                        .items(List.of(
-                                OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_500_ML_PRODUCT_ID).build())
-                                        .amount(BigDecimal.valueOf(4)).build(),
-                                OrderItemDto.builder().product(OrderProductDto.builder().id(productId).build())
-                                        .amount(BigDecimal.valueOf(1000)).build()))
-                        .build())
-                .post("/orders")
-                .then()
-                .statusCode(BAD_REQUEST.value())
-                .extract().as(ErrorResponseDto.class);
+            .contentType(JSON)
+            .body(CreateOrderDto.builder()
+                .items(List.of(
+                    OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_500_ML_PRODUCT_ID).build())
+                        .amount(BigDecimal.valueOf(4)).build(),
+                    OrderItemDto.builder().product(OrderProductDto.builder().id(productId).build())
+                        .amount(BigDecimal.valueOf(1000)).build()))
+                .build())
+            .post("/orders")
+            .then()
+            .statusCode(BAD_REQUEST.value())
+            .extract().as(ErrorResponseDto.class);
 
         assertThat(response.getErrorCode()).isSameAs(ENTITY_NOT_FOUND);
         assertThat(response.getErrorDetails()).satisfiesExactly(detail -> {
@@ -228,6 +228,7 @@ class OrderControllerValidationTest extends SpringTest {
             assertThat(detail.getMessage()).isNull();
             assertThat(detail.getValues()).isNull();
         });
+
         assertThat(productService.getById(MILK_500_ML_PRODUCT_ID).getStock()).isEqualByComparingTo("30");
     }
 
@@ -237,26 +238,25 @@ class OrderControllerValidationTest extends SpringTest {
         UUID paidOrderId = UUID.fromString("e2a878e6-72c6-49f5-b391-cb60fbca944e");
 
         ErrorResponseDto response = when()
-                .put("/orders/{id}/cancel", paidOrderId)
-                .then()
-                .statusCode(BAD_REQUEST.value())
-                .extract().as(ErrorResponseDto.class);
+            .put("/orders/{id}/cancel", paidOrderId)
+            .then()
+            .statusCode(BAD_REQUEST.value())
+            .extract().as(ErrorResponseDto.class);
 
         assertThat(response.getErrorCode()).isSameAs(ILLEGAL_ORDER_STATE);
         assertThat(response.getErrorDetails()).satisfiesExactly(detail -> {
             assertThat(detail.getEntityId()).isEqualTo(paidOrderId);
             assertThat(detail.getField()).isNull();
             assertThat(detail.getMessage()).isNull();
-            assertThat(detail.getValues()).satisfiesExactly(
-                    value -> {
-                        assertThat(value.getType()).isSameAs(CURRENT_STATE);
-                        assertThat(value.getValue()).isEqualTo(PAID.name());
-                    }, value -> {
-                        assertThat(value.getType()).isSameAs(ALLOWED_STATE);
-                        assertThat(value.getValue()).isEqualTo(NEW.name());
-                    }
-            );
+            assertThat(detail.getValues()).satisfiesExactly(value -> {
+                assertThat(value.getType()).isSameAs(CURRENT_STATE);
+                assertThat(value.getValue()).isEqualTo(PAID.name());
+            }, value -> {
+                assertThat(value.getType()).isSameAs(ALLOWED_STATE);
+                assertThat(value.getValue()).isEqualTo(NEW.name());
+            });
         });
+
         OrderResponseDto order = orderService.getById(paidOrderId);
         assertThat(order.getId()).isEqualTo(paidOrderId);
         assertThat(order.getState()).isSameAs(PAID);

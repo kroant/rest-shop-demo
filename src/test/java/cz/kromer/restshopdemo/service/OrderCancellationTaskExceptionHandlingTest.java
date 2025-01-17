@@ -38,10 +38,10 @@ class OrderCancellationTaskExceptionHandlingTest {
         UUID secondOrderId = UUID.fromString("104c5d5e-f4fc-49e1-92b4-14b9a50e7110");
 
         when(orderService.findNewOrdersBefore(any()))
-                .thenReturn(List.of(firstOrderId, secondOrderId));
+            .thenReturn(List.of(firstOrderId, secondOrderId));
 
         doThrow(new RuntimeException("Exception during cancelling an order"))
-                .when(orderService).cancel(firstOrderId);
+            .when(orderService).cancel(firstOrderId);
 
         orderCancellationTask.cancelObsoleteOrders();
 

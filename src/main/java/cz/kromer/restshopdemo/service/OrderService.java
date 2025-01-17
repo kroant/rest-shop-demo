@@ -60,7 +60,7 @@ public class OrderService {
     public OrderResponseDto getById(UUID id) {
         return orderResponseDtoMapper.mapFrom(
                 orderRepository.findById(id)
-                        .orElseThrow(() -> new RootEntityNotFoundException(id))
+                    .orElseThrow(() -> new RootEntityNotFoundException(id))
         );
     }
 

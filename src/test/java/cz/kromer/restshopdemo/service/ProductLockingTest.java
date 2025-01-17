@@ -44,10 +44,13 @@ class ProductLockingTest extends SpringTest {
 
         lockingTransaction.waitUntilProductLocked();
 
-        orderService.save(CreateOrderDto.builder().items(List.of(
-                    OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_1_L_PRODUCT_ID).build()).amount(ONE).build(),
-                    OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_500_ML_PRODUCT_ID).build()).amount(ONE).build()))
-                .build());
+        orderService.save(CreateOrderDto.builder()
+            .items(List.of(
+                OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_1_L_PRODUCT_ID).build()).amount(ONE).build(),
+                OrderItemDto.builder().product(OrderProductDto.builder().id(MILK_500_ML_PRODUCT_ID).build()).amount(ONE).build()
+            ))
+            .build()
+        );
 
         assertThat(productService.getById(MILK_1_L_PRODUCT_ID).getStock()).isEqualByComparingTo("49");
         assertThat(productService.getById(MILK_500_ML_PRODUCT_ID).getStock()).isEqualByComparingTo("29");

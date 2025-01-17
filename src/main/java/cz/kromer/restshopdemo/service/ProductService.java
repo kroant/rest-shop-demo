@@ -38,7 +38,7 @@ public class ProductService {
     public ProductDto getById(UUID id) {
         return productDtoMapper.mapFrom(
                 productRepository.findById(id)
-                        .orElseThrow(() -> new RootEntityNotFoundException(id))
+                    .orElseThrow(() -> new RootEntityNotFoundException(id))
         );
     }
 

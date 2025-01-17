@@ -53,7 +53,7 @@ public class RestResponseEntityExceptionHandler {
         return badRequest().body(ErrorResponseDto.builder()
                 .errorCode(PRODUCT_STOCK_SHORTAGE)
                 .errorDetails(e.getProductShortages().stream()
-                        .map(this::mapToErrorDetail).toList())
+                    .map(this::mapToErrorDetail).toList())
                 .build());
     }
 
@@ -62,9 +62,9 @@ public class RestResponseEntityExceptionHandler {
         return badRequest().body(ErrorResponseDto.builder()
                 .errorCode(ILLEGAL_ORDER_STATE)
                 .errorDetails(List.of(ErrorDetailDto.builder()
-                        .entityId(e.getId())
-                        .values(mapToDetailValues(e))
-                        .build()))
+                    .entityId(e.getId())
+                    .values(mapToDetailValues(e))
+                    .build()))
                 .build());
     }
 
@@ -73,8 +73,8 @@ public class RestResponseEntityExceptionHandler {
         return badRequest().body(ErrorResponseDto.builder()
                 .errorCode(ILLEGAL_AMOUNT_SCALE)
                 .errorDetails(List.of(ErrorDetailDto.builder()
-                        .entityId(e.getProductId())
-                        .build()))
+                    .entityId(e.getProductId())
+                    .build()))
                 .build());
     }
 
@@ -83,7 +83,7 @@ public class RestResponseEntityExceptionHandler {
         return badRequest().body(ErrorResponseDto.builder()
                 .errorCode(REQUEST_VALIDATION_ERROR)
                 .errorDetails(e.getAllErrors().stream()
-                        .map(this::mapToErrorDetail).toList())
+                    .map(this::mapToErrorDetail).toList())
                 .build());
     }
 
@@ -91,8 +91,8 @@ public class RestResponseEntityExceptionHandler {
         return ErrorResponseDto.builder()
                 .errorCode(ENTITY_NOT_FOUND)
                 .errorDetails(List.of(ErrorDetailDto.builder()
-                        .entityId(entityId)
-                        .build()))
+                    .entityId(entityId)
+                    .build()))
                 .build();
     }
 
@@ -113,12 +113,12 @@ public class RestResponseEntityExceptionHandler {
     private List<ErrorDetailValueDto> mapToDetailValues(IllegalOrderStateException e) {
         return concat(
                 Stream.of(ErrorDetailValueDto.builder()
-                        .type(CURRENT_STATE)
-                        .value(e.getCurrentState().name()).build()),
+                    .type(CURRENT_STATE)
+                    .value(e.getCurrentState().name()).build()),
                 e.getAllowedStates().stream()
-                        .map(state -> ErrorDetailValueDto.builder()
-                                .type(ALLOWED_STATE)
-                                .value(state.name()).build()))
+                    .map(state -> ErrorDetailValueDto.builder()
+                        .type(ALLOWED_STATE)
+                        .value(state.name()).build()))
                 .toList();
     }
 
@@ -126,9 +126,9 @@ public class RestResponseEntityExceptionHandler {
         return ErrorDetailDto.builder()
                 .entityId(shortage.getProduct().getId())
                 .values(List.of(ErrorDetailValueDto.builder()
-                        .type(MISSING_AMOUNT)
-                        .value(shortage.getMissingAmount().toPlainString())
-                        .build()))
+                    .type(MISSING_AMOUNT)
+                    .value(shortage.getMissingAmount().toPlainString())
+                    .build()))
                 .build();
     }
 }

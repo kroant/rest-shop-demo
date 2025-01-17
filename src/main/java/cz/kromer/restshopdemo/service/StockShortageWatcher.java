@@ -40,9 +40,9 @@ class StockShortageWatcher {
         final BigDecimal newAmount = product.getStock().subtract(item.getAmount());
         if (newAmount.compareTo(ZERO) < 0) {
             shortages.add(ProductStockShortageDto.builder()
-                    .product(orderProductDtoMapper.mapFrom(product))
-                    .missingAmount(newAmount.negate())
-                    .build());
+                .product(orderProductDtoMapper.mapFrom(product))
+                .missingAmount(newAmount.negate())
+                .build());
         } else {
             product.setStock(newAmount);
         }
