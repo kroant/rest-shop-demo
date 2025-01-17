@@ -156,8 +156,7 @@ class ProductControllerTest extends SpringTest {
     @Test
     @Sql({SQL_CLEANUP, SQL_COMPLEX_TEST_DATA})
     void shouldDeleteProduct_WhenExists() {
-        when()
-                .delete("/products/{id}", MILK_500_ML_PRODUCT_ID)
+        when().delete("/products/{id}", MILK_500_ML_PRODUCT_ID)
                 .then()
                 .statusCode(NO_CONTENT.value());
 

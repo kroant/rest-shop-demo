@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import org.junit.jupiter.api.Test;
 
@@ -31,8 +31,7 @@ class ProductControllerValidationTest extends SpringTest {
 
     @Test
     void shouldFail400_whenIdInvalid() {
-        when()
-                .get("/products/invalid_UUID")
+        when().get("/products/invalid_UUID")
                 .then()
                 .statusCode(BAD_REQUEST.value());
     }
@@ -102,9 +101,9 @@ class ProductControllerValidationTest extends SpringTest {
                             assertThat(detailValue.getValue()).isEqualTo(NotNull.class.getSimpleName()));
                 }, detail -> {
                     assertThat(detail.getField()).isEqualTo("price");
-                    assertThat(detail.getMessage()).isEqualTo("must be greater than 0");
+                    assertThat(detail.getMessage()).isEqualTo("must be greater than or equal to 0");
                     assertThat(detail.getValues()).satisfiesExactly(detailValue ->
-                            assertThat(detailValue.getValue()).isEqualTo(Positive.class.getSimpleName()));
+                            assertThat(detailValue.getValue()).isEqualTo(PositiveOrZero.class.getSimpleName()));
                 }, detail -> {
                     assertThat(detail.getField()).isEqualTo("stock");
                     assertThat(detail.getMessage()).startsWith("numeric value out of bounds");
