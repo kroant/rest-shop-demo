@@ -41,7 +41,7 @@ class OrderController {
     @GetMapping("/{id}")
     @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = OrderResponseDto.class)) })
     @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
-    OrderResponseDto getById(@PathVariable("id") UUID id) {
+    OrderResponseDto getById(@PathVariable UUID id) {
         return orderService.getById(id);
     }
 
@@ -57,7 +57,7 @@ class OrderController {
     @ApiResponse(responseCode = "204", content = { @Content })
     @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
     @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
-    void cancel(@PathVariable("id") UUID id) {
+    void cancel(@PathVariable UUID id) {
         orderService.cancel(id);
     }
 
@@ -66,7 +66,7 @@ class OrderController {
     @ApiResponse(responseCode = "204", content = { @Content })
     @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
     @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
-    void pay(@PathVariable("id") UUID id) {
+    void pay(@PathVariable UUID id) {
         orderService.pay(id);
     }
 }

@@ -41,7 +41,7 @@ class ProductController {
     @GetMapping("/{id}")
     @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = ProductDto.class)) })
     @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
-    ProductDto getById(@PathVariable("id") UUID id) {
+    ProductDto getById(@PathVariable UUID id) {
         return productService.getById(id);
     }
 
@@ -56,7 +56,7 @@ class ProductController {
     @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = ProductDto.class)) })
     @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
     @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
-    ProductDto update(@PathVariable("id") UUID id, @Valid @RequestBody ProductDto product) {
+    ProductDto update(@PathVariable UUID id, @Valid @RequestBody ProductDto product) {
         productService.update(id, product);
         return productService.getById(id);
     }
@@ -65,7 +65,7 @@ class ProductController {
     @ResponseStatus(NO_CONTENT)
     @ApiResponse(responseCode = "204", content = { @Content })
     @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema(implementation = ErrorResponseDto.class)) })
-    void delete(@PathVariable("id") UUID id) {
+    void delete(@PathVariable UUID id) {
         productService.delete(id);
     }
 }

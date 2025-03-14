@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
-import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,5 +24,5 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     List<Order> findAllByOrderByStateAscCreatedOnDesc();
 
     @Query("select o.id from Order o where o.createdOn < :before and o.state = 'NEW'")
-    List<UUID> findNewOrdersBefore(@Param("before") Instant before);
+    List<UUID> findNewOrdersBefore(Instant before);
 }

@@ -2,7 +2,7 @@
 
 ## Requirements
 - JDK 21
-- Apache Maven 3.9.9
+- Apache Maven 3.9
 
 ## How to run
 Build the application and run tests:
