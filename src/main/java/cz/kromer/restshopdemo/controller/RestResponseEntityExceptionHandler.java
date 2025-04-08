@@ -79,7 +79,7 @@ public class RestResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
+    protected ResponseEntity<ErrorResponseDto> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
         return badRequest().body(ErrorResponseDto.builder()
                 .errorCode(REQUEST_VALIDATION_ERROR)
                 .errorDetails(e.getAllErrors().stream()
