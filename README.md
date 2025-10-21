@@ -1,7 +1,7 @@
 # REST Shop Demo
 
 ## Requirements
-- JDK 21
+- JDK 25
 - Apache Maven 3.9
 
 ## How to run
