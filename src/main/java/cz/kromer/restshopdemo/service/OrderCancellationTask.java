@@ -26,7 +26,7 @@ public class OrderCancellationTask {
     OrderService orderService;
     SchedulingProps schedulingProps;
 
-    @Scheduled(cron = "${app.scheduling.order-cancellation.cron}")
+    @Scheduled(cron = "${application.scheduling.order-cancellation.cron}")
     @SchedulerLock(name = "cancelObsoleteOrders")
     public void cancelObsoleteOrders() {
         final Instant before = now(clock)

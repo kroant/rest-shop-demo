@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.dao.ConcurrencyFailureException;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +64,7 @@ public class OrderService {
         );
     }
 
-    @Retryable(retryFor = { ConcurrencyFailureException.class })
+    @Retryable({ConcurrencyFailureException.class})
     @Transactional(isolation = READ_COMMITTED)
     public UUID save(CreateOrderDto order) {
         Order entity = orderMapper.mapFrom(order, this::findPersistentProductAndLock);
@@ -83,7 +83,7 @@ public class OrderService {
         return entity.getId();
     }
 
-    @Retryable(retryFor = { ConcurrencyFailureException.class })
+    @Retryable({ConcurrencyFailureException.class})
     @Transactional(isolation = READ_COMMITTED)
     public void cancel(UUID id) {
         Order order = orderRepository.findAndLockById(id)
@@ -95,7 +95,7 @@ public class OrderService {
         order.setState(CANCELLED);
     }
 
-    @Retryable(retryFor = { ConcurrencyFailureException.class })
+    @Retryable({ConcurrencyFailureException.class})
     @Transactional(isolation = READ_COMMITTED)
     public void pay(UUID id) {
         Order order = orderRepository.findAndLockById(id)

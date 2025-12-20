@@ -2,13 +2,13 @@ package cz.kromer.restshopdemo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.resilience.annotation.EnableResilientMethods;
 
 import java.time.Clock;
 
 @Configuration
-@EnableRetry
-public class AppConfig {
+@EnableResilientMethods
+public class ApplicationConfig {
 
     @Bean
     public Clock clock() {

@@ -9,7 +9,7 @@ import cz.kromer.restshopdemo.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.dao.ConcurrencyFailureException;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +49,7 @@ public class ProductService {
         return entity.getId();
     }
 
-    @Retryable(retryFor = { ConcurrencyFailureException.class })
+    @Retryable({ConcurrencyFailureException.class})
     @Transactional
     public void update(UUID id, ProductDto product) {
         Product entity = productRepository.findAndLockById(id)
@@ -57,7 +57,7 @@ public class ProductService {
         productMapper.mapToProduct(product, entity);
     }
 
-    @Retryable(retryFor = { ConcurrencyFailureException.class })
+    @Retryable({ConcurrencyFailureException.class})
     @Transactional
     public void delete(UUID id) {
         Product entity = productRepository.findAndLockById(id)

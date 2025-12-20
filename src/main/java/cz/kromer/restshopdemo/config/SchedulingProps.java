@@ -10,7 +10,7 @@ import static lombok.AccessLevel.PRIVATE;
 @Data
 @FieldDefaults(level = PRIVATE)
 @Configuration
-@ConfigurationProperties(prefix = "app.scheduling")
+@ConfigurationProperties(prefix = "application.scheduling")
 public class SchedulingProps {
 
     final OrderCancellationProps orderCancellation = new OrderCancellationProps();

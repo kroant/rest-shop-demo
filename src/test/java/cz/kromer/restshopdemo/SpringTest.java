@@ -6,7 +6,6 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Clock;
@@ -16,7 +15,6 @@ import static io.restassured.filter.log.LogDetail.ALL;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@ActiveProfiles("test")
 public abstract class SpringTest {
 
     @MockitoBean
