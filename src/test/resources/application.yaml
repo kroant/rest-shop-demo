@@ -3,8 +3,6 @@ application:
     enable: false
 
 spring:
-  web:
-    locale: en
   datasource:
     url: jdbc:h2:mem:test
   jpa:
@@ -14,6 +12,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  web:
+    locale: en
 
 springdoc:
   api-docs:

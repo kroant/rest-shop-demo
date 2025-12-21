@@ -1,4 +1,4 @@
-package cz.kromer.restshopdemo;
+package cz.kromer.restshopdemo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

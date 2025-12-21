@@ -44,11 +44,11 @@ class OrderControllerTest extends SpringTest {
     @Test
     @Sql({SQL_CLEANUP, SQL_COMPLEX_TEST_DATA})
     void shouldGetAllOrders_WhenExist() {
-        List<OrderResponseDto> response = when()
+        OrderResponseDto[] response = when()
             .get("/orders")
             .then()
             .statusCode(OK.value())
-            .extract().jsonPath().getList(".", OrderResponseDto.class);
+            .extract().as(OrderResponseDto[].class);
 
         assertThat(response).satisfiesExactly(order -> {
             assertThat(order.getId()).isEqualTo(UUID.fromString("b3a48eee-65a4-431b-a11a-e770a7f0ba8b"));

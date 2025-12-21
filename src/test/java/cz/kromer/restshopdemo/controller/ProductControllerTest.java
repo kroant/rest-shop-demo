@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 
 import static cz.kromer.restshopdemo.TestConstants.CASHEW_NUTS_PRODUCT_ID;
@@ -34,11 +33,11 @@ class ProductControllerTest extends SpringTest {
     @Test
     @Sql({SQL_CLEANUP, SQL_COMPLEX_TEST_DATA})
     void shouldGetAllProducts_WhenExist() {
-        List<ProductDto> response = when()
+        ProductDto[] response = when()
             .get("/products")
             .then()
             .statusCode(OK.value())
-            .extract().jsonPath().getList(".", ProductDto.class);
+            .extract().as(ProductDto[].class);
 
         assertThat(response).satisfiesExactly(product -> {
             assertThat(product.getId()).isEqualTo(MILK_1_L_PRODUCT_ID);
