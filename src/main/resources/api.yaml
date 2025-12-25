@@ -1,0 +1,363 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: 'http://localhost:8080/rest-shop-demo'
+    description: Generated server url
+paths:
+  '/products/{id}':
+    get:
+      tags:
+        - product-controller
+      operationId: getById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+        '404':
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+    put:
+      tags:
+        - product-controller
+      operationId: update
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+        '400':
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '404':
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+    delete:
+      tags:
+        - product-controller
+      operationId: delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+  '/orders/{id}/pay':
+    put:
+      tags:
+        - order-controller
+      operationId: pay
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '404':
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+  '/orders/{id}/cancel':
+    put:
+      tags:
+        - order-controller
+      operationId: cancel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '404':
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+  /products:
+    get:
+      tags:
+        - product-controller
+      operationId: findAll
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductDto'
+    post:
+      tags:
+        - product-controller
+      operationId: save
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+        '400':
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+  /orders:
+    get:
+      tags:
+        - order-controller
+      operationId: findAll_1
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderResponseDto'
+    post:
+      tags:
+        - order-controller
+      operationId: save_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+        '400':
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+  '/orders/{id}':
+    get:
+      tags:
+        - order-controller
+      operationId: getById_1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+        '404':
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+components:
+  schemas:
+    ProductDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 100
+          minLength: 0
+          pattern: '^[\p{L}\p{S}\p{N}\p{P}\x20]*$'
+        unit:
+          type: string
+          enum:
+            - PIECE
+            - GRAM
+            - LITER
+            - METER
+        price:
+          type: number
+        stock:
+          type: number
+      required:
+        - name
+        - price
+        - stock
+        - unit
+    ErrorDetailDto:
+      type: object
+      properties:
+        entityId:
+          type: string
+          format: uuid
+        field:
+          type: string
+        message:
+          type: string
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetailValueDto'
+    ErrorDetailValueDto:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - MISSING_AMOUNT
+            - CURRENT_STATE
+            - ALLOWED_STATE
+            - VALIDATION_CODE
+        value:
+          type: string
+    ErrorResponseDto:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          enum:
+            - ENTITY_NOT_FOUND
+            - REQUEST_VALIDATION_ERROR
+            - PRODUCT_STOCK_SHORTAGE
+            - ILLEGAL_ORDER_STATE
+            - ILLEGAL_AMOUNT_SCALE
+        errorDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetailDto'
+    CreateOrderDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemDto'
+          minItems: 1
+      required:
+        - items
+    OrderItemDto:
+      type: object
+      properties:
+        product:
+          $ref: '#/components/schemas/OrderProductDto'
+        amount:
+          type: number
+      required:
+        - amount
+        - product
+    OrderProductDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+        - id
+    OrderResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+            - NEW
+            - PAID
+            - CANCELLED
+        price:
+          type: number
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemDto'
+        createdOn:
+          type: string
+          format: date-time
