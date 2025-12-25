@@ -4,10 +4,6 @@ application:
       cron: 0 * * * * *
       new-order-retention-duration: PT30M
 
-server:
-  servlet:
-    context-path: /rest-shop-demo
-
 spring:
   datasource:
     url: jdbc:h2:mem:demo

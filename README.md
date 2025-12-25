@@ -15,7 +15,7 @@ Run the application:
 
 Open Swagger UI in browser:
 
-[http://localhost:8080/rest-shop-demo/swagger-ui.html](http://localhost:8080/rest-shop-demo/swagger-ui.html)
+[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
 ### Run in Docker (optional)
 
