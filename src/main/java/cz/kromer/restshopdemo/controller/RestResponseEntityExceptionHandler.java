@@ -1,8 +1,8 @@
 package cz.kromer.restshopdemo.controller;
 
-import cz.kromer.restshopdemo.dto.error.ErrorDetailDto;
-import cz.kromer.restshopdemo.dto.error.ErrorDetailValueDto;
-import cz.kromer.restshopdemo.dto.error.ErrorResponseDto;
+import cz.kromer.restshopdemo.dto.ErrorDetailDto;
+import cz.kromer.restshopdemo.dto.ErrorDetailValueDto;
+import cz.kromer.restshopdemo.dto.ErrorResponseDto;
 import cz.kromer.restshopdemo.exception.AssociatedEntityNotFoundException;
 import cz.kromer.restshopdemo.exception.IllegalAmountScaleException;
 import cz.kromer.restshopdemo.exception.IllegalOrderStateException;
@@ -20,15 +20,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static cz.kromer.restshopdemo.dto.error.ErrorDetailValueType.ALLOWED_STATE;
-import static cz.kromer.restshopdemo.dto.error.ErrorDetailValueType.CURRENT_STATE;
-import static cz.kromer.restshopdemo.dto.error.ErrorDetailValueType.MISSING_AMOUNT;
-import static cz.kromer.restshopdemo.dto.error.ErrorDetailValueType.VALIDATION_CODE;
-import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.ENTITY_NOT_FOUND;
-import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.ILLEGAL_AMOUNT_SCALE;
-import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.ILLEGAL_ORDER_STATE;
-import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.PRODUCT_STOCK_SHORTAGE;
-import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.REQUEST_VALIDATION_ERROR;
+import static cz.kromer.restshopdemo.dto.ErrorDetailValueType.ALLOWED_STATE;
+import static cz.kromer.restshopdemo.dto.ErrorDetailValueType.CURRENT_STATE;
+import static cz.kromer.restshopdemo.dto.ErrorDetailValueType.MISSING_AMOUNT;
+import static cz.kromer.restshopdemo.dto.ErrorDetailValueType.VALIDATION_CODE;
+import static cz.kromer.restshopdemo.dto.ErrorResponseCode.ENTITY_NOT_FOUND;
+import static cz.kromer.restshopdemo.dto.ErrorResponseCode.ILLEGAL_AMOUNT_SCALE;
+import static cz.kromer.restshopdemo.dto.ErrorResponseCode.ILLEGAL_ORDER_STATE;
+import static cz.kromer.restshopdemo.dto.ErrorResponseCode.PRODUCT_STOCK_SHORTAGE;
+import static cz.kromer.restshopdemo.dto.ErrorResponseCode.REQUEST_VALIDATION_ERROR;
 import static java.util.stream.Stream.concat;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.ResponseEntity.badRequest;

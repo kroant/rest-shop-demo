@@ -11,7 +11,7 @@ paths:
     get:
       summary: Get all products
       tags:
-        - Products
+        - products
       operationId: getAllProducts
       responses:
         '200':
@@ -21,17 +21,17 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Product'
+                  $ref: '#/components/schemas/ProductDto'
     post:
       summary: Save product
       tags:
-        - Products
+        - products
       operationId: saveProduct
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Product'
+              $ref: '#/components/schemas/ProductDto'
         required: true
       responses:
         '200':
@@ -39,18 +39,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/ProductDto'
         '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
   /products/{id}:
     get:
       summary: Get product by ID
       tags:
-        - Products
+        - products
       operationId: getProductById
       parameters:
         - $ref: '#/components/parameters/id'
@@ -60,17 +60,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/ProductDto'
         '404':
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
     put:
       summary: Update product by ID
       tags:
-        - Products
+        - products
       operationId: updateProduct
       parameters:
         - $ref: '#/components/parameters/id'
@@ -78,7 +78,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Product'
+              $ref: '#/components/schemas/ProductDto'
         required: true
       responses:
         '200':
@@ -86,23 +86,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/ProductDto'
         '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '404':
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
     delete:
       summary: Delete product by ID
       tags:
-        - Products
+        - products
       operationId: deleteProduct
       parameters:
         - $ref: '#/components/parameters/id'
@@ -114,13 +114,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
 
   /orders:
     get:
       summary: Get all orders
       tags:
-        - Orders
+        - orders
       operationId: getAllOrders
       responses:
         '200':
@@ -130,17 +130,17 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OrderResponse'
+                  $ref: '#/components/schemas/OrderResponseDto'
     post:
       summary: Save order
       tags:
-        - Orders
+        - orders
       operationId: saveOrder
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateOrder'
+              $ref: '#/components/schemas/CreateOrderDto'
         required: true
       responses:
         '200':
@@ -148,18 +148,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OrderResponse'
+                $ref: '#/components/schemas/OrderResponseDto'
         '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
   /orders/{id}:
     get:
       summary: Get order by ID
       tags:
-        - Orders
+        - orders
       operationId: getOrderById
       parameters:
         - $ref: '#/components/parameters/id'
@@ -169,18 +169,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OrderResponse'
+                $ref: '#/components/schemas/OrderResponseDto'
         '404':
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
   /orders/{id}/pay:
     put:
       summary: Pay order
       tags:
-        - Orders
+        - orders
       operationId: payOrder
       parameters:
         - $ref: '#/components/parameters/id'
@@ -192,18 +192,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '404':
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
   /orders/{id}/cancel:
     put:
       summary: Cancel order
       tags:
-        - Orders
+        - orders
       operationId: cancelOrder
       parameters:
         - $ref: '#/components/parameters/id'
@@ -215,13 +215,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '404':
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponseDto'
 
 components:
   parameters:
@@ -234,8 +234,9 @@ components:
         format: uuid
 
   schemas:
-    Product:
+    ProductDto:
       type: object
+      x-class-extra-annotation: '@cz.kromer.restshopdemo.dto.validation.ProductStockMaxScale'
       properties:
         id:
           type: string
@@ -243,43 +244,54 @@ components:
         name:
           type: string
           maxLength: 100
-          minLength: 0
           pattern: '^[\p{L}\p{S}\p{N}\p{P}\x20]*$'
+          x-field-extra-annotation: '@NotBlank'
         unit:
           $ref: '#/components/schemas/QuantityUnit'
         price:
           type: number
+          minimum: 0
+          x-field-extra-annotation: '@Digits(integer = 17, fraction = 2)'
         stock:
           type: number
-      required:
-        - name
-        - price
-        - stock
-        - unit
+          minimum: 0
+          x-field-extra-annotation: '@Digits(integer = 16, fraction = 3)'
+      required: [ name, price, stock, unit ]
+      example:
+        id: 00000000-0000-0000-0000-000000000000
+        name: Milk 1 l
+        unit: PIECE
+        price: 28.5
+        stock: 20
 
-    CreateOrder:
+    CreateOrderDto:
       type: object
       properties:
         items:
           type: array
-          items:
-            $ref: '#/components/schemas/OrderItem'
           minItems: 1
-      required:
-        - items
+          x-field-extra-annotation:
+            - '@NotEmpty'
+            - '@cz.kromer.restshopdemo.dto.validation.UniqueOrderProduct'
+            - '@cz.kromer.restshopdemo.dto.validation.NotNullItems'
+          items:
+            $ref: '#/components/schemas/OrderItemDto'
+      required: [ items ]
 
-    OrderItem:
+    OrderItemDto:
       type: object
       properties:
         product:
-          $ref: '#/components/schemas/OrderProduct'
+          $ref: '#/components/schemas/OrderProductDto'
         amount:
           type: number
-      required:
-        - amount
-        - product
+          exclusiveMinimum: 0
+          x-field-extra-annotation:
+            - '@Positive'
+            - '@Digits(integer = 16, fraction = 3)'
+      required: [ amount, product ]
 
-    OrderProduct:
+    OrderProductDto:
       type: object
       properties:
         id:
@@ -287,10 +299,9 @@ components:
           format: uuid
         name:
           type: string
-      required:
-        - id
+      required: [ id ]
 
-    OrderResponse:
+    OrderResponseDto:
       type: object
       properties:
         id:
@@ -303,7 +314,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/OrderItem'
+            $ref: '#/components/schemas/OrderItemDto'
         createdOn:
           type: string
           format: date-time
@@ -323,7 +334,7 @@ components:
         - PAID
         - CANCELLED
 
-    ErrorResponse:
+    ErrorResponseDto:
       type: object
       properties:
         errorCode:
@@ -331,9 +342,9 @@ components:
         errorDetails:
           type: array
           items:
-            $ref: '#/components/schemas/ErrorDetail'
+            $ref: '#/components/schemas/ErrorDetailDto'
 
-    ErrorDetail:
+    ErrorDetailDto:
       type: object
       properties:
         entityId:
@@ -346,9 +357,9 @@ components:
         values:
           type: array
           items:
-            $ref: '#/components/schemas/ErrorDetailValue'
+            $ref: '#/components/schemas/ErrorDetailValueDto'
 
-    ErrorDetailValue:
+    ErrorDetailValueDto:
       type: object
       properties:
         type:

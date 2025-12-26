@@ -1,24 +1,24 @@
 package cz.kromer.restshopdemo.controller;
 
 import cz.kromer.restshopdemo.SpringTest;
+import cz.kromer.restshopdemo.dto.ErrorResponseDto;
 import cz.kromer.restshopdemo.dto.ProductDto;
-import cz.kromer.restshopdemo.dto.error.ErrorResponseDto;
 import cz.kromer.restshopdemo.dto.validation.ProductStockMaxScale;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import static cz.kromer.restshopdemo.dto.ErrorDetailValueType.VALIDATION_CODE;
+import static cz.kromer.restshopdemo.dto.ErrorResponseCode.ENTITY_NOT_FOUND;
+import static cz.kromer.restshopdemo.dto.ErrorResponseCode.REQUEST_VALIDATION_ERROR;
 import static cz.kromer.restshopdemo.dto.QuantityUnit.PIECE;
-import static cz.kromer.restshopdemo.dto.error.ErrorDetailValueType.VALIDATION_CODE;
-import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.ENTITY_NOT_FOUND;
-import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.REQUEST_VALIDATION_ERROR;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static io.restassured.http.ContentType.JSON;
@@ -99,7 +99,7 @@ class ProductControllerValidationTest extends SpringTest {
             assertThat(detail.getField()).isEqualTo("price");
             assertThat(detail.getMessage()).isEqualTo("must be greater than or equal to 0");
             assertThat(detail.getValues()).satisfiesExactly(detailValue ->
-                assertThat(detailValue.getValue()).isEqualTo(PositiveOrZero.class.getSimpleName()));
+                assertThat(detailValue.getValue()).isEqualTo(DecimalMin.class.getSimpleName()));
         }, detail -> {
             assertThat(detail.getField()).isEqualTo("stock");
             assertThat(detail.getMessage()).startsWith("numeric value out of bounds");

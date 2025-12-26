@@ -2,10 +2,11 @@ package cz.kromer.restshopdemo.controller;
 
 import cz.kromer.restshopdemo.SpringTest;
 import cz.kromer.restshopdemo.dto.CreateOrderDto;
+import cz.kromer.restshopdemo.dto.ErrorResponseDto;
 import cz.kromer.restshopdemo.dto.OrderItemDto;
 import cz.kromer.restshopdemo.dto.OrderProductDto;
 import cz.kromer.restshopdemo.dto.OrderResponseDto;
-import cz.kromer.restshopdemo.dto.error.ErrorResponseDto;
+import cz.kromer.restshopdemo.dto.validation.NotNullItems;
 import cz.kromer.restshopdemo.dto.validation.UniqueOrderProduct;
 import cz.kromer.restshopdemo.service.OrderService;
 import cz.kromer.restshopdemo.service.ProductService;
@@ -23,17 +24,17 @@ import static cz.kromer.restshopdemo.TestConstants.MILK_1_L_PRODUCT_ID;
 import static cz.kromer.restshopdemo.TestConstants.MILK_500_ML_PRODUCT_ID;
 import static cz.kromer.restshopdemo.TestConstants.SQL_CLEANUP;
 import static cz.kromer.restshopdemo.TestConstants.SQL_COMPLEX_TEST_DATA;
+import static cz.kromer.restshopdemo.dto.ErrorDetailValueType.ALLOWED_STATE;
+import static cz.kromer.restshopdemo.dto.ErrorDetailValueType.CURRENT_STATE;
+import static cz.kromer.restshopdemo.dto.ErrorDetailValueType.MISSING_AMOUNT;
+import static cz.kromer.restshopdemo.dto.ErrorDetailValueType.VALIDATION_CODE;
+import static cz.kromer.restshopdemo.dto.ErrorResponseCode.ENTITY_NOT_FOUND;
+import static cz.kromer.restshopdemo.dto.ErrorResponseCode.ILLEGAL_AMOUNT_SCALE;
+import static cz.kromer.restshopdemo.dto.ErrorResponseCode.ILLEGAL_ORDER_STATE;
+import static cz.kromer.restshopdemo.dto.ErrorResponseCode.PRODUCT_STOCK_SHORTAGE;
+import static cz.kromer.restshopdemo.dto.ErrorResponseCode.REQUEST_VALIDATION_ERROR;
 import static cz.kromer.restshopdemo.dto.OrderState.NEW;
 import static cz.kromer.restshopdemo.dto.OrderState.PAID;
-import static cz.kromer.restshopdemo.dto.error.ErrorDetailValueType.ALLOWED_STATE;
-import static cz.kromer.restshopdemo.dto.error.ErrorDetailValueType.CURRENT_STATE;
-import static cz.kromer.restshopdemo.dto.error.ErrorDetailValueType.MISSING_AMOUNT;
-import static cz.kromer.restshopdemo.dto.error.ErrorDetailValueType.VALIDATION_CODE;
-import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.ENTITY_NOT_FOUND;
-import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.ILLEGAL_AMOUNT_SCALE;
-import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.ILLEGAL_ORDER_STATE;
-import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.PRODUCT_STOCK_SHORTAGE;
-import static cz.kromer.restshopdemo.dto.error.ErrorResponseCode.REQUEST_VALIDATION_ERROR;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static io.restassured.http.ContentType.JSON;
@@ -68,11 +69,11 @@ class OrderControllerValidationTest extends SpringTest {
         assertThat(response.getErrorCode()).isSameAs(REQUEST_VALIDATION_ERROR);
         assertThat(response.getErrorDetails()).satisfiesExactly(detail -> {
             assertThat(detail.getEntityId()).isNull();
-            assertThat(detail.getField()).isEqualTo("items[0]");
-            assertThat(detail.getMessage()).isEqualTo("must not be null");
+            assertThat(detail.getField()).isEqualTo("items");
+            assertThat(detail.getMessage()).isEqualTo("collection must not contain null item");
             assertThat(detail.getValues()).satisfiesExactly(detailValue -> {
                 assertThat(detailValue.getType()).isSameAs(VALIDATION_CODE);
-                assertThat(detailValue.getValue()).isEqualTo(NotNull.class.getSimpleName());
+                assertThat(detailValue.getValue()).isEqualTo(NotNullItems.class.getSimpleName());
             });
         });
     }

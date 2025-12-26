@@ -1,12 +1,11 @@
 package cz.kromer.restshopdemo.dto.validation;
 
-import java.math.BigDecimal;
-
+import cz.kromer.restshopdemo.dto.ProductDto;
+import cz.kromer.restshopdemo.dto.QuantityUnit;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import cz.kromer.restshopdemo.dto.ProductDto;
-import cz.kromer.restshopdemo.dto.QuantityUnit;
+import java.math.BigDecimal;
 
 public class ProductStockMaxScaleValidator implements ConstraintValidator<ProductStockMaxScale, ProductDto> {
 
@@ -19,6 +18,13 @@ public class ProductStockMaxScaleValidator implements ConstraintValidator<Produc
     }
 
     public static boolean isScaleValid(BigDecimal value, QuantityUnit unit) {
-        return value.stripTrailingZeros().scale() <= unit.getMaxScale();
+        return value.stripTrailingZeros().scale() <= getMaxScale(unit);
+    }
+
+    private static int getMaxScale(QuantityUnit unit) {
+        return switch (unit) {
+            case LITER, METER -> 3;
+            default -> 0;
+        };
     }
 }

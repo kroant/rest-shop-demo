@@ -152,16 +152,27 @@
                             <inputSpec>${project.basedir}/src/main/resources/api.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <apiPackage>cz.kromer.restshopdemo.api</apiPackage>
-                            <modelPackage>cz.kromer.restshopdemo.model</modelPackage>
+                            <modelPackage>cz.kromer.restshopdemo.dto</modelPackage>
                             <generateSupportingFiles>false</generateSupportingFiles>
+                            <typeMappings>
+                                <typeMapping>DateTime=Instant</typeMapping>
+                            </typeMappings>
+                            <importMappings>
+                                <importMapping>Instant=java.time.Instant</importMapping>
+                            </importMappings>
                             <configOptions>
                                 <useSpringBoot3>true</useSpringBoot3>
                                 <useResponseEntity>false</useResponseEntity>
-                                <generateBuilders>true</generateBuilders>
                                 <interfaceOnly>true</interfaceOnly>
                                 <openApiNullable>false</openApiNullable>
                                 <skipDefaultInterface>true</skipDefaultInterface>
-                                <useSpringController>true</useSpringController>
+                                <containerDefaultToNull>true</containerDefaultToNull>
+                                <additionalModelTypeAnnotations>
+                                    @lombok.Data
+                                    @lombok.Builder
+                                    @lombok.NoArgsConstructor
+                                    @lombok.AllArgsConstructor
+                                </additionalModelTypeAnnotations>
                             </configOptions>
                         </configuration>
                     </execution>
